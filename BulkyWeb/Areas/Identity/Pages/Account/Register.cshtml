@@ -1,0 +1,145 @@
+﻿@page
+@model RegisterModel
+
+<div class="row justify-content-center mt-5 mb-5">
+    <div class="col-lg-8">
+        <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
+            <div class="card-header text-white text-center py-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <i class="bi bi-person-plus-fill" style="font-size: 3rem;"></i>
+                @if (User.IsInRole(SD.Role_Admin)) {
+                    <h2 class="mt-2 mb-0">Admin Portal - Register User</h2>
+                }
+                else {
+                    <h2 class="mt-2 mb-0">Create Account</h2>
+                    <p class="mb-0">Join JUST Mart today!</p>
+                }
+            </div>
+            <div class="card-body p-5">
+                <form id="registerForm" class="row g-3" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    
+                    <div class="col-md-12">
+                        <label asp-for="Input.Email" class="form-label fw-semibold">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Input.Email" class="form-control form-control-lg" autocomplete="username" aria-required="true" placeholder="your@email.com" />
+                        </div>
+                        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label asp-for="Input.Name" class="form-label fw-semibold">Full Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                            <input asp-for="Input.Name" class="form-control form-control-lg" placeholder="John Doe" />
+                        </div>
+                        <span asp-validation-for="Input.Name" class="text-danger small"></span>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label asp-for="Input.PhoneNumber" class="form-label fw-semibold">Phone Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-telephone"></i></span>
+                            <input asp-for="Input.PhoneNumber" class="form-control form-control-lg" placeholder="+880 1234567890" />
+                        </div>
+                        <span asp-validation-for="Input.PhoneNumber" class="text-danger small"></span>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label asp-for="Input.Password" class="form-label fw-semibold">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                            <input asp-for="Input.Password" class="form-control form-control-lg" autocomplete="new-password" aria-required="true" placeholder="Create a strong password" />
+                        </div>
+                        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label asp-for="Input.ConfirmPassword" class="form-label fw-semibold">Confirm Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-lock-fill"></i></span>
+                            <input asp-for="Input.ConfirmPassword" class="form-control form-control-lg" autocomplete="new-password" aria-required="true" placeholder="Re-enter password" />
+                        </div>
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                    </div>
+                    
+                    <hr class="my-3">
+                    <h5 class="mb-3" style="color: #667eea;"><i class="bi bi-geo-alt me-2"></i>Address Information</h5>
+                    
+                    <div class="col-md-6">
+                        <label asp-for="Input.StreetAddress" class="form-label fw-semibold">Street Address</label>
+                        <input asp-for="Input.StreetAddress" class="form-control form-control-lg" placeholder="123 Main Street" />
+                        <span asp-validation-for="Input.StreetAddress" class="text-danger small"></span>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label asp-for="Input.City" class="form-label fw-semibold">City</label>
+                        <input asp-for="Input.City" class="form-control form-control-lg" placeholder="Dhaka" />
+                        <span asp-validation-for="Input.City" class="text-danger small"></span>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label asp-for="Input.State" class="form-label fw-semibold">State/Division</label>
+                        <input asp-for="Input.State" class="form-control form-control-lg" placeholder="Dhaka Division" />
+                        <span asp-validation-for="Input.State" class="text-danger small"></span>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label asp-for="Input.PostalCode" class="form-label fw-semibold">Postal Code</label>
+                        <input asp-for="Input.PostalCode" class="form-control form-control-lg" placeholder="1000" />
+                        <span asp-validation-for="Input.PostalCode" class="text-danger small"></span>
+                    </div>
+                    
+                    @if (User.IsInRole(SD.Role_Admin))
+                    {
+                        <hr class="my-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">User Role</label>
+                            <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-select form-select-lg">
+                                <option disabled selected>-Select Role-</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Company</label>
+                            <select asp-for="Input.CompanyId" style="display:none;" asp-items="@Model.Input.CompanyList" class="form-select form-select-lg">
+                                <option disabled selected>-Select Company-</option>
+                            </select>
+                        </div>
+                    }
+                    
+                    <div class="col-12 mt-4">
+                        <div class="d-grid">
+                            <button id="registerSubmit" type="submit" class="btn btn-lg text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;">
+                                <i class="bi bi-person-check me-2"></i>Create Account
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 text-center mt-3">
+                        <p class="mb-0">Already have an account?</p>
+                        <a asp-page="./Login" class="fw-bold text-decoration-none" style="color: #667eea;">
+                            Sign in here <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('#Input_Role').change(function(){
+                var selection = $('#Input_Role Option:Selected').text();
+                if(selection=='Company'){
+                    $('#Input_CompanyId').show();
+                }
+                else{
+                    $('#Input_CompanyId').hide();
+                }
+            })
+        })
+    </script>
+}
