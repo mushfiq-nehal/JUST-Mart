@@ -8,6 +8,11 @@
                 <img src="~/logo/justmart-logo.png" alt="JUST Mart Logo" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) invert(1);" class="mb-3" />
                 <h2 class="mt-2 mb-0 fw-bold">Welcome Back</h2>
                 <p class="mb-0 opacity-90">Sign in to your account</p>
+                
+                <!-- Demo Credentials Button -->
+                <button type="button" class="btn btn-sm btn-light mt-3" data-bs-toggle="modal" data-bs-target="#demoCredentialsModal" style="border-radius: 20px; font-size: 12px;">
+                    <i class="bi bi-info-circle me-1"></i> Demo Credentials
+                </button>
             </div>
             <div class="card-body p-5">
                 <section>
@@ -61,6 +66,79 @@
                         </div>
                     </form>
                 </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Demo Credentials Modal -->
+<div class="modal fade" id="demoCredentialsModal" tabindex="-1" aria-labelledby="demoCredentialsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 20px; border: none;">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); border-radius: 20px 20px 0 0;">
+                <h5 class="modal-title" id="demoCredentialsModalLabel">
+                    <i class="bi bi-key-fill me-2"></i>Portfolio Demo - Test Credentials
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-muted small mb-3">Use these credentials to explore different user roles:</p>
+                
+                <div class="credential-card mb-3 p-3 border rounded" style="background: linear-gradient(135deg, rgba(220, 53, 69, 0.05) 0%, rgba(220, 53, 69, 0.02) 100%); border-left: 4px solid #dc3545 !important;">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-shield-fill-check text-danger me-2"></i>
+                        <strong class="text-danger">Admin User</strong>
+                    </div>
+                    <div class="small">
+                        <div class="mb-1">
+                            <span class="text-muted">Email:</span>
+                            <code class="bg-light px-2 py-1 rounded">admin@justmart.com</code>
+                        </div>
+                        <div>
+                            <span class="text-muted">Password:</span>
+                            <code class="bg-light px-2 py-1 rounded">Admin123*</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="credential-card mb-3 p-3 border rounded" style="background: linear-gradient(135deg, rgba(13, 110, 253, 0.05) 0%, rgba(13, 110, 253, 0.02) 100%); border-left: 4px solid #0d6efd !important;">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-person-fill text-primary me-2"></i>
+                        <strong class="text-primary">Individual Customer</strong>
+                    </div>
+                    <div class="small">
+                        <div class="mb-1">
+                            <span class="text-muted">Email:</span>
+                            <code class="bg-light px-2 py-1 rounded">customer@justmart.com</code>
+                        </div>
+                        <div>
+                            <span class="text-muted">Password:</span>
+                            <code class="bg-light px-2 py-1 rounded">Admin123*</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="credential-card p-3 border rounded" style="background: linear-gradient(135deg, rgba(25, 135, 84, 0.05) 0%, rgba(25, 135, 84, 0.02) 100%); border-left: 4px solid #198754 !important;">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-building text-success me-2"></i>
+                        <strong class="text-success">Company User</strong>
+                    </div>
+                    <div class="small">
+                        <div class="mb-1">
+                            <span class="text-muted">Email:</span>
+                            <code class="bg-light px-2 py-1 rounded">company@justmart.com</code>
+                        </div>
+                        <div>
+                            <span class="text-muted">Password:</span>
+                            <code class="bg-light px-2 py-1 rounded">Admin123*</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-sm text-white" data-bs-dismiss="modal" style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); border-radius: 10px;">
+                    Got it!
+                </button>
             </div>
         </div>
     </div>
