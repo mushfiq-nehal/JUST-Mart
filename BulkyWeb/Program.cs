@@ -46,6 +46,18 @@ builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+
+// Register Azure Blob Storage Service
+builder.Services.AddScoped<IBlobStorageService?>(sp =>
+{
+    var connectionString = builder.Configuration.GetSection("AzureBlobStorage:ConnectionString").Value;
+    if (string.IsNullOrEmpty(connectionString) || connectionString == "YOUR_AZURE_STORAGE_CONNECTION_STRING_HERE")
+    {
+        return null; // Return null if not configured, controller will use local storage
+    }
+    return new BlobStorageService(connectionString);
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

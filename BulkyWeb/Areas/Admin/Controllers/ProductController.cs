@@ -17,10 +17,13 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
+        private readonly IBlobStorageService? _blobStorageService;
+        
+        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment, IBlobStorageService? blobStorageService = null)
         {
             _unitOfWork = unitOfWork;
             _webHostEnvironment = webHostEnvironment;
+            _blobStorageService = blobStorageService;
         }
         public IActionResult Index() 
         {
@@ -54,7 +57,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             
         }
         [HttpPost]
-        public IActionResult Upsert(ProductVM productVM, List<IFormFile> files)
+        public async Task<IActionResult> Upsert(ProductVM productVM, List<IFormFile> files)
         {
             if (ModelState.IsValid)
             {
@@ -67,45 +70,61 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 
                 _unitOfWork.Save();
 
-
-                string wwwRootPath = _webHostEnvironment.WebRootPath;
-                if (files != null)
+                if (files != null && files.Count > 0)
                 {
-
-                    foreach(IFormFile file in files) 
+                    // Use Azure Blob Storage if configured, otherwise fall back to local storage
+                    if (_blobStorageService != null)
                     {
-                        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                        string productPath = @"images\products\product-" + productVM.Product.Id;
-                        string finalPath = Path.Combine(wwwRootPath, productPath);
+                        // Upload to Azure Blob Storage
+                        var imageUrls = await _blobStorageService.UploadMultipleImagesAsync(files);
+                        
+                        foreach(var imageUrl in imageUrls) 
+                        {
+                            ProductImage productImage = new() {
+                                ImageUrl = imageUrl,
+                                ProductId = productVM.Product.Id,
+                            };
 
-                        if (!Directory.Exists(finalPath))
-                            Directory.CreateDirectory(finalPath);
+                            if (productVM.Product.ProductImages == null)
+                                productVM.Product.ProductImages = new List<ProductImage>();
 
-                        using (var fileStream = new FileStream(Path.Combine(finalPath, fileName), FileMode.Create)) {
-                            file.CopyTo(fileStream);
+                            productVM.Product.ProductImages.Add(productImage);
                         }
+                    }
+                    else
+                    {
+                        // Fall back to local storage
+                        string wwwRootPath = _webHostEnvironment.WebRootPath;
+                        
+                        foreach(IFormFile file in files) 
+                        {
+                            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                            string productPath = @"images\products\product-" + productVM.Product.Id;
+                            string finalPath = Path.Combine(wwwRootPath, productPath);
 
-                        ProductImage productImage = new() {
-                            ImageUrl = @"\" + productPath + @"\" + fileName,
-                            ProductId=productVM.Product.Id,
-                        };
+                            if (!Directory.Exists(finalPath))
+                                Directory.CreateDirectory(finalPath);
 
-                        if (productVM.Product.ProductImages == null)
-                            productVM.Product.ProductImages = new List<ProductImage>();
+                            using (var fileStream = new FileStream(Path.Combine(finalPath, fileName), FileMode.Create)) {
+                                file.CopyTo(fileStream);
+                            }
 
-                        productVM.Product.ProductImages.Add(productImage);
+                            ProductImage productImage = new() {
+                                ImageUrl = @"\" + productPath + @"\" + fileName,
+                                ProductId = productVM.Product.Id,
+                            };
 
+                            if (productVM.Product.ProductImages == null)
+                                productVM.Product.ProductImages = new List<ProductImage>();
+
+                            productVM.Product.ProductImages.Add(productImage);
+                        }
                     }
 
                     _unitOfWork.Product.Update(productVM.Product);
                     _unitOfWork.Save();
-
-
-
-
                 }
 
-                
                 TempData["success"] = "Product created/updated successfully";
                 return RedirectToAction("Index");
             }
@@ -121,17 +140,30 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         }
 
 
-        public IActionResult DeleteImage(int imageId) {
+        public async Task<IActionResult> DeleteImage(int imageId) {
             var imageToBeDeleted = _unitOfWork.ProductImage.Get(u => u.Id == imageId);
             int productId = imageToBeDeleted.ProductId;
+            
             if (imageToBeDeleted != null) {
                 if (!string.IsNullOrEmpty(imageToBeDeleted.ImageUrl)) {
-                    var oldImagePath =
-                                   Path.Combine(_webHostEnvironment.WebRootPath,
-                                   imageToBeDeleted.ImageUrl.TrimStart('\\'));
+                    // Check if it's a cloud URL or local path
+                    if (imageToBeDeleted.ImageUrl.StartsWith("http"))
+                    {
+                        // Delete from Azure Blob Storage
+                        if (_blobStorageService != null)
+                        {
+                            await _blobStorageService.DeleteImageAsync(imageToBeDeleted.ImageUrl);
+                        }
+                    }
+                    else
+                    {
+                        // Delete from local storage
+                        var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath,
+                                       imageToBeDeleted.ImageUrl.TrimStart('\\'));
 
-                    if (System.IO.File.Exists(oldImagePath)) {
-                        System.IO.File.Delete(oldImagePath);
+                        if (System.IO.File.Exists(oldImagePath)) {
+                            System.IO.File.Delete(oldImagePath);
+                        }
                     }
                 }
 
@@ -155,7 +187,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 
 
         [HttpDelete]
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
             var productToBeDeleted = _unitOfWork.Product.Get(u => u.Id == id);
             if (productToBeDeleted == null)
@@ -163,18 +195,40 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
                 return Json(new { success = false, message = "Error while deleting" });
             }
 
+            // Delete images from storage
+            var productImages = _unitOfWork.ProductImage.GetAll(u => u.ProductId == id).ToList();
+            
+            foreach (var image in productImages)
+            {
+                if (!string.IsNullOrEmpty(image.ImageUrl))
+                {
+                    if (image.ImageUrl.StartsWith("http"))
+                    {
+                        // Delete from Azure Blob Storage
+                        if (_blobStorageService != null)
+                        {
+                            await _blobStorageService.DeleteImageAsync(image.ImageUrl);
+                        }
+                    }
+                    else
+                    {
+                        // Delete from local storage
+                        var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, image.ImageUrl.TrimStart('\\'));
+                        if (System.IO.File.Exists(imagePath))
+                        {
+                            System.IO.File.Delete(imagePath);
+                        }
+                    }
+                }
+            }
+
+            // Delete product folder from local storage if exists
             string productPath = @"images\products\product-" + id;
             string finalPath = Path.Combine(_webHostEnvironment.WebRootPath, productPath);
 
             if (Directory.Exists(finalPath)) {
-                string[] filePaths = Directory.GetFiles(finalPath);
-                foreach (string filePath in filePaths) {
-                    System.IO.File.Delete(filePath);
-                }
-
-                Directory.Delete(finalPath);
+                Directory.Delete(finalPath, true);
             }
-
 
             _unitOfWork.Product.Remove(productToBeDeleted);
             _unitOfWork.Save();
