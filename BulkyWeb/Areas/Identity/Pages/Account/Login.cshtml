@@ -3,11 +3,11 @@
 
 <div class="row justify-content-center mt-5">
     <div class="col-md-5">
-        <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
-            <div class="card-header text-white text-center py-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden; animation: fadeInUp 0.6s ease;">
+            <div class="card-header text-white text-center py-4" style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%);">
                 <i class="bi bi-person-circle" style="font-size: 3rem;"></i>
-                <h2 class="mt-2 mb-0">Welcome Back</h2>
-                <p class="mb-0">Sign in to your account</p>
+                <h2 class="mt-2 mb-0 fw-bold">Welcome Back</h2>
+                <p class="mb-0 opacity-90">Sign in to your account</p>
             </div>
             <div class="card-body p-5">
                 <section>
@@ -40,13 +40,13 @@
                         </div>
                         
                         <div class="d-grid mb-4">
-                            <button id="login-submit" type="submit" class="btn btn-lg text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;">
+                            <button id="login-submit" type="submit" class="btn btn-lg text-white" style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); border-radius: 12px; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3); transition: all 0.3s ease;">
                                 <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
                             </button>
                         </div>
                         
                         <div class="text-center">
-                            <a id="forgot-password" asp-page="./ForgotPassword" class="text-decoration-none" style="color: #667eea;">
+                            <a id="forgot-password" asp-page="./ForgotPassword" class="text-decoration-none" style="color: #ff6b6b; transition: color 0.3s ease;">
                                 <i class="bi bi-question-circle me-1"></i>Forgot your password?
                             </a>
                         </div>
@@ -55,7 +55,7 @@
                         
                         <div class="text-center">
                             <p class="mb-0">Don't have an account?</p>
-                            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="fw-bold text-decoration-none" style="color: #667eea;">
+                            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="fw-bold text-decoration-none" style="color: #ff6b6b;">
                                 Create a new account <i class="bi bi-arrow-right"></i>
                             </a>
                         </div>

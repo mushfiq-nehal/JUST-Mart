@@ -1,16 +1,17 @@
 ﻿@model ProductVM
 
-<div class="card shadow border-0 my-4">
-    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
-    <div class="row">
-        <div class="col-12 text-center">
-                <h2 class="text-white py-2"> @(Model.Product.Id!=0?"Update":"Create") Product</h2>
-        </div>
+<div class="container my-5">
+    <div class="mb-4">
+        <h1 class="display-6 fw-bold mb-2" style="color: #ff6b6b;">
+            <i class="bi bi-box me-3"></i>@(Model.Product.Id!=0?"Update":"Create") Product
+        </h1>
+        <p class="text-muted mb-0">@(Model.Product.Id!=0?"Modify":"Add new") product details</p>
     </div>
-    </div>
-    <div class="card-body p-4">
-        <form method="post" class="row" enctype="multipart/form-data">
-            <input asp-for="Product.Id" hidden />
+
+    <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+        <div class="card-body p-4">
+            <form method="post" class="row" enctype="multipart/form-data">
+                <input asp-for="Product.Id" hidden />
            
             <div class="row">
                 <div class="col-10">
@@ -22,13 +23,14 @@
                             <span asp-validation-for="Product.Title" class="text-danger"></span>
                         </div>
                         <div class="py-2 col-12">
-                            <label asp-for="Product.Description" class="ms-2 text-muted"></label>
-                            <textarea asp-for="Product.Description" class="form-control border-0 shadow"></textarea>
+                            <label asp-for="Product.Description" class="ms-2 text-muted fw-semibold"></label>
+                            <textarea asp-for="Product.Description" rows="6" class="form-control border-0 shadow" placeholder="Enter product description..."></textarea>
+                            <small class="text-muted ms-2">Provide a detailed description of the product</small>
                         </div>
 
                         <div class="form-floating py-2 col-12">
                             <input asp-for="Product.ISBN" class="form-control border-0 shadow" />
-                            <label asp-for="Product.ISBN" class="ms-2"></label>
+                            <label asp-for="Product.ISBN" class="ms-2">Product Code / SKU</label>
                             <span asp-validation-for="Product.ISBN" class="text-danger"></span>
                         </div>
                         <div class="form-floating py-2 col-12">
@@ -70,20 +72,24 @@
                             <input type="file" name="files" class="form-control border-0 shadow" multiple />
                             <label asp-for="Product.ProductImages" class="ms-2"></label>
                         </div>
-                        <div class="row pt-2">
+                        <div class="row pt-4">
                             <div class="col-6 col-md-3">
                                 @if (Model.Product.Id != 0)
                                 {
-                                    <button type="submit" class="btn btn-primary form-control">Update</button>
+                                    <button type="submit" class="btn btn-lg w-100 text-white" style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);">
+                                        <i class="bi bi-check-circle me-2"></i>Update
+                                    </button>
                                 }
                                 else
                                 {
-                                    <button type="submit" class="btn btn-primary form-control">Create</button>
+                                    <button type="submit" class="btn btn-lg w-100 text-white" style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);">
+                                        <i class="bi bi-plus-circle me-2"></i>Create
+                                    </button>
                                 }
                             </div>
                             <div class="col-6 col-md-3">
-                                <a asp-controller="Product" asp-action="Index" class="btn btn-outline-primary border  form-control">
-                                    Back to List
+                                <a asp-controller="Product" asp-action="Index" class="btn btn-outline-secondary btn-lg w-100" style="border-radius: 12px;">
+                                    <i class="bi bi-arrow-left me-2"></i>Back to List
                                 </a>
                             </div>
                         </div>
@@ -97,8 +103,8 @@
                             <div class="border p-1 m-2 text-center">
                                 <img src="@image.ImageUrl" width="100%"
                                      style="border-radius:5px; border:1px solid #bbb9b9" />
-                                     <a asp-action="DeleteImage" class="btn btn-danger" asp-route-imageId="@image.Id">
-                                    <i class="bi bi-trash-fill"></i> Delete
+                                     <a asp-action="DeleteImage" class="btn btn-sm btn-danger mt-2 w-100" asp-route-imageId="@image.Id" style="border-radius: 8px;">
+                                    <i class="bi bi-trash-fill me-1"></i> Delete
                                      </a>
                             </div>
                         }
@@ -114,13 +120,6 @@
 
 
 @section Scripts{
-    <script>
-        tinymce.init({
-            selector: 'textarea',
-            plugins: 'anchor autolink charmap codesample emoticons  lists   table visualblocks wordcount',
-            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough |  align lineheight | numlist bullist indent outdent',
-        });
-    </script>
     @{
     <partial name="_ValidationScriptsPartial"/>
     }

@@ -1,79 +1,117 @@
 ﻿@{
     var status = Context.Request.Query["status"];
-    var pending = "text-primary";
-    var inprocess = "text-primary";
-    var completed = "text-primary";
-    var approved = "text-primary";
-    var all = "text-primary";
+    var pending = "";
+    var inprocess = "";
+    var completed = "";
+    var approved = "";
+    var all = "";
 
     switch (status) {
         case "pending":
-            pending = "active text-white bg-primary";
+            pending = "active";
             break;
         case "inprocess":
-            inprocess = "active text-white bg-primary";
+            inprocess = "active";
             break;
         case "completed":
-            completed = "active text-white bg-primary";
+            completed = "active";
             break;
         case "approved":
-            approved = "active text-white bg-primary";
+            approved = "active";
             break;
         default:
-            all = "active text-white bg-primary";
+            all = "active";
             break;
-
     }
-
 }
 
+<div class="container my-5">
+    <!-- Modern Header -->
+    <div class="mb-5">
+        <h1 class="display-5 fw-bold mb-2" style="color: #ff6b6b;">
+            <i class="bi bi-box-seam me-3"></i>Order Management
+        </h1>
+        <p class="text-muted">Track and manage all your orders</p>
+    </div>
 
-<div class="card shadow border-0 my-4">
-    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
-        <div class="row">
-            <div class="col-12 text-center">
-                <h2 class="text-white py-2">Order List</h2>
+    <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+        <div class="card-body p-4">
+            <!-- Filter Tabs -->
+            <div class="mb-4">
+                <div class="btn-group flex-wrap" role="group">
+                    <a asp-controller="Order" asp-action="Index" asp-route-status="all" 
+                       class="btn @(all == "active" ? "btn-primary" : "btn-outline-secondary")" 
+                       style="@(all == "active" ? "background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); border: none;" : "")">
+                        <i class="bi bi-list-ul me-1"></i>All Orders
+                    </a>
+                    <a asp-controller="Order" asp-action="Index" asp-route-status="pending" 
+                       class="btn @(pending == "active" ? "btn-primary" : "btn-outline-secondary")"
+                       style="@(pending == "active" ? "background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); border: none;" : "")">
+                        <i class="bi bi-clock me-1"></i>Pending Payment
+                    </a>
+                    <a asp-controller="Order" asp-action="Index" asp-route-status="approved" 
+                       class="btn @(approved == "active" ? "btn-primary" : "btn-outline-secondary")"
+                       style="@(approved == "active" ? "background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); border: none;" : "")">
+                        <i class="bi bi-check-circle me-1"></i>Approved
+                    </a>
+                    <a asp-controller="Order" asp-action="Index" asp-route-status="inprocess" 
+                       class="btn @(inprocess == "active" ? "btn-primary" : "btn-outline-secondary")"
+                       style="@(inprocess == "active" ? "background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); border: none;" : "")">
+                        <i class="bi bi-arrow-repeat me-1"></i>In Process
+                    </a>
+                    <a asp-controller="Order" asp-action="Index" asp-route-status="completed" 
+                       class="btn @(completed == "active" ? "btn-primary" : "btn-outline-secondary")"
+                       style="@(completed == "active" ? "background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); border: none;" : "")">
+                        <i class="bi bi-check-all me-1"></i>Completed
+                    </a>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive">
+                <table id="tblData" class="table table-hover align-middle" style="width:100%">
+                    <thead style="background: rgba(255, 107, 107, 0.05);">
+                        <tr>
+                            <th class="fw-semibold">Order ID</th>
+                            <th class="fw-semibold">Customer Name</th>
+                            <th class="fw-semibold">Phone</th>
+                            <th class="fw-semibold">Email</th>
+                            <th class="fw-semibold">Status</th>
+                            <th class="fw-semibold">Total</th>
+                            <th class="fw-semibold text-center">Actions</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
-    </div>
-    <div class="card-body p-4">
-        <div class="d-flex justify-content-between pb-5 pt-2">
-            <span></span>
-            <ul class="list-group list-group-horizontal-sm">
-                <a style="text-decoration:none;" asp-controller="Order" asp-action="Index" asp-route-status="inprocess">
-                    <li class="list-group-item @inprocess">In Process</li>
-                </a>
-                <a style="text-decoration:none;" asp-controller="Order" asp-action="Index" asp-route-status="pending">
-                <li class="list-group-item @pending">Payment Pending</li>
-                </a>
-                <a style="text-decoration:none;" asp-controller="Order" asp-action="Index" asp-route-status="completed">
-                <li class="list-group-item @completed">Completed</li>
-                </a>
-                <a style="text-decoration:none;" asp-controller="Order" asp-action="Index" asp-route-status="approved">
-                <li class="list-group-item @approved">Approved</li>
-                </a>
-                <a style="text-decoration:none;" asp-controller="Order" asp-action="Index" asp-route-status="all">
-                <li class="list-group-item @all">All</li>
-                </a>
-            </ul>
-        </div>
-        <table id="tblData" class="table table-bordered table-striped" style="width:100%">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Phone Number</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Total</th>
-                    <th></th>
-                </tr>
-            </thead>
-        </table>
-
     </div>
 </div>
 
 @section Scripts{
     <script src="~/js/order.js"></script>
+    <style>
+        .btn-group .btn {
+            border-radius: 8px !important;
+            margin: 0 4px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-group .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        #tblData thead th {
+            border: none;
+            color: #6b7280;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        #tblData tbody tr {
+            border-bottom: 1px solid #f3f4f6;
+        }
+        #tblData tbody tr:hover {
+            background: rgba(255, 107, 107, 0.02);
+        }
+    </style>
 }

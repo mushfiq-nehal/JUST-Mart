@@ -7,8 +7,15 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using BulkyBook.Utility;
 using Microsoft.Extensions.Options;
 using BulkyBook.DataAccess.DbInitializer;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Set default culture to Bangladesh (Taka currency)
+var cultureInfo = new CultureInfo("en-BD");
+cultureInfo.NumberFormat.CurrencySymbol = "৳";
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 // Load local configuration file if it exists
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);

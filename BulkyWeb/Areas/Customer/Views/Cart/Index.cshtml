@@ -1,88 +1,139 @@
 ﻿@model ShoppingCartVM
 
 <form method="post">
-    <br />
-    <div class="card shadow border-0">
-        <div class="card-header bg-secondary bg-gradient text-light ml-0 py-4">
-            <div class="row px-4">
-                <div class="col-6">
-                    <h5 class="pt-2 text-white">
-                        Shopping Cart
-                    </h5>
-                </div>
-
-            </div>
+    <div class="container my-5">
+        <!-- Modern Header -->
+        <div class="mb-5">
+            <h1 class="display-5 fw-bold mb-2" style="color: #ff6b6b;">
+                <i class="bi bi-cart3 me-3"></i>Shopping Cart
+            </h1>
+            <p class="text-muted">Review your items before checkout</p>
         </div>
-        <div class="card-body my-4">
-            <div class="row">
-            </div>
-            <div class="row mb-3 pb-3">
-                <div class="col-md-2 offset-md-1">
-                    <a asp-area="Customer" asp-controller="Home" asp-action="Index" class="btn btn-outline-primary text-uppercase mb-5 btn-sm"><small>Continue Shopping</small></a>
-                </div>
-                <div class="col-md-10 offset-md-1">
 
-                    @foreach(var item in Model.ShoppingCartList){
-                    <div class="row border-bottom pb-3">
-                        <div class="d-none d-lg-block col-lg-1 text-center py-2">
-                                @if (item.Product.ProductImages != null && item.Product.ProductImages.Count() > 0) {
-                                    <img src="@item.Product.ProductImages.FirstOrDefault().ImageUrl" class="card-img-top rounded w-100" />
-                                }
-                                else {
-                                    <img src="https://placehold.co/500x600/png" class="card-img-top rounded w-100" />
-                                }
-                        </div>
-                        <div class="col-12 col-lg-6 pt-md-3">
-                            <h5 class="text-uppercase text-secondary"><strong>@item.Product.Title</strong></h5>
-                                <p><small>@Html.Raw(item.Product.Description)</small></p>
-                        </div>
-                        <div class="col-12  col-lg-5 text-center row">
-                            <div class="col-3 text-md-right pt-2 pt-md-4">
-                                <h6 class="fw-semibold">
-                                        @item.Price.ToString("c")
-                                    <span class="text-muted">&nbsp;x&nbsp;</span>@item.Count
-                                </h6>
-                            </div>
-                            <div class="col-6 col-sm-4 col-lg-6 pt-2">
-                                <div class="w-75 btn-group" role="group">
-                                    <a asp-action="plus" asp-route-cartId="@item.Id" class="btn btn-outline-primary bg-gradient py-2">
-                                        <i class="bi bi-plus-square"></i>
-                                    </a> &nbsp;
-                                        <a asp-action="minus" asp-route-cartId="@item.Id" class="btn btn-outline-primary bg-gradient py-2">
-                                        <i class="bi bi-dash-square"></i>
-                                    </a>
+        <div class="row g-4">
+            <!-- Cart Items -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        @if (Model.ShoppingCartList.Any()) {
+                            @foreach(var item in Model.ShoppingCartList) {
+                                <div class="cart-item mb-4 pb-4 border-bottom">
+                                    <div class="row align-items-center">
+                                        <!-- Product Image -->
+                                        <div class="col-md-2 mb-3 mb-md-0">
+                                            <div class="product-image-wrapper" style="border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(255, 107, 107, 0.1);">
+                                                @if (item.Product.ProductImages != null && item.Product.ProductImages.Count() > 0) {
+                                                    <img src="@item.Product.ProductImages.FirstOrDefault().ImageUrl" class="img-fluid" style="width: 100%; height: 100px; object-fit: cover;" alt="@item.Product.Title" />
+                                                } else {
+                                                    <img src="https://placehold.co/500x600/png" class="img-fluid" style="width: 100%; height: 100px; object-fit: cover;" alt="Product" />
+                                                }
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Product Details -->
+                                        <div class="col-md-4 mb-3 mb-md-0">
+                                            <h5 class="fw-bold mb-2">@item.Product.Title</h5>
+                                            <p class="text-muted small mb-0">@Html.Raw(item.Product.Description.Length > 100 ? item.Product.Description.Substring(0, 100) + "..." : item.Product.Description)</p>
+                                        </div>
+                                        
+                                        <!-- Price -->
+                                        <div class="col-6 col-md-2 text-center">
+                                            <small class="text-muted d-block">Unit Price</small>
+                                            <h6 class="fw-bold mb-0" style="color: #ff6b6b;">@item.Price.ToString("c")</h6>
+                                        </div>
+                                        
+                                        <!-- Quantity Controls -->
+                                        <div class="col-6 col-md-2">
+                                            <small class="text-muted d-block text-center mb-2">Quantity</small>
+                                            <div class="btn-group w-100" role="group">
+                                                <a asp-action="minus" asp-route-cartId="@item.Id" class="btn btn-outline-danger btn-sm">
+                                                    <i class="bi bi-dash"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" disabled>@item.Count</button>
+                                                <a asp-action="plus" asp-route-cartId="@item.Id" class="btn btn-outline-success btn-sm">
+                                                    <i class="bi bi-plus"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Subtotal & Remove -->
+                                        <div class="col-12 col-md-2 text-center mt-3 mt-md-0">
+                                            <small class="text-muted d-block">Subtotal</small>
+                                            <h5 class="fw-bold mb-2" style="color: #10b981;">@((item.Price * item.Count).ToString("c"))</h5>
+                                            <a asp-action="remove" asp-route-cartId="@item.Id" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i> Remove
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
-
-                            </div>
-                            <div class="col-3 col-sm-4 col-lg-2 offset-lg-1 text-right pt-2">
-                                    <a asp-action="remove" asp-route-cartId="@item.Id" class="btn btn-danger bg-gradient py-2 ">
-                                    <i class="bi bi-trash-fill"></i>
+                            }
+                        } else {
+                            <div class="text-center py-5">
+                                <i class="bi bi-cart-x" style="font-size: 4rem; color: #e5e7eb;"></i>
+                                <h5 class="mt-3 text-muted">Your cart is empty</h5>
+                                <a asp-area="Customer" asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3" style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); border: none;">
+                                    Start Shopping
                                 </a>
                             </div>
+                        }
+                        
+                        @if (Model.ShoppingCartList.Any()) {
+                            <div class="mt-3">
+                                <a asp-area="Customer" asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left me-2"></i>Continue Shopping
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            @if (Model.ShoppingCartList.Any()) {
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm sticky-top" style="border-radius: 16px; top: 100px;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-4">Order Summary</h5>
+                            
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="text-muted">Subtotal</span>
+                                <span class="fw-semibold">@Model.OrderHeader.OrderTotal.ToString("c")</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="text-muted">Shipping</span>
+                                <span class="fw-semibold text-success">FREE</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="text-muted">Tax</span>
+                                <span class="fw-semibold">Calculated at checkout</span>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <div class="d-flex justify-content-between mb-4">
+                                <h5 class="fw-bold">Total</h5>
+                                <h5 class="fw-bold" style="color: #ff6b6b;">@Model.OrderHeader.OrderTotal.ToString("c")</h5>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <a asp-action="Summary" class="btn btn-lg text-white" style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);">
+                                    <i class="bi bi-credit-card me-2"></i>Proceed to Checkout
+                                </a>
+                            </div>
+                            
+                            <div class="mt-4 p-3" style="background: rgba(255, 107, 107, 0.05); border-radius: 12px; border-left: 4px solid #ff6b6b;">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-shield-check" style="font-size: 1.5rem; color: #ff6b6b;"></i>
+                                    <small class="ms-2 fw-semibold">Secure Checkout</small>
+                                </div>
+                                <small class="text-muted">Your payment information is protected</small>
+                            </div>
                         </div>
-
-                    </div>
-                    }
-
-
-                </div>
-            </div>
-            <div class="card-footer bg-white border-0">
-                <div class="row">
-                    <div class="col-md-4 offset-md-4">
-                        <ul class="list-group mb-4">
-                            <li class="d-flex justify-content-between align-items-center">
-                                <h5 class="text-dark fw-semibold text-uppercase"> Total (USD)</h5>
-                                <h4 class="text-dark fw-bolder">@Model.OrderHeader.OrderTotal.ToString("c")</h4>
-                            </li>
-                        </ul>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-2 offset-md-5">
-                        <a asp-action="Summary" class="btn btn-primary border-0 bg-gradient w-100 py-2">Summary</a>
-                    </div>
-                </div>
-            </div>
+            }
         </div>
+    </div>
 </form>
