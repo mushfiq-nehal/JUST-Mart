@@ -28,6 +28,10 @@ var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
     ?? Environment.GetEnvironmentVariable("DATABASE_PUBLIC_URL")
     ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
+Console.WriteLine($"Connection string found: {!string.IsNullOrEmpty(connectionString)}");
+Console.WriteLine($"Connection string length: {connectionString?.Length ?? 0}");
+Console.WriteLine($"First 50 chars: {connectionString?.Substring(0, Math.Min(50, connectionString?.Length ?? 0))}");
+
 if (string.IsNullOrEmpty(connectionString) || connectionString == "YOUR_CONNECTION_STRING_HERE")
 {
     throw new InvalidOperationException("Database connection string not found. Please set DATABASE_URL environment variable.");
