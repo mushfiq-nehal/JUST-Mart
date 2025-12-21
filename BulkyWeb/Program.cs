@@ -27,6 +27,11 @@ builder.Services.AddControllersWithViews();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
     ?? Environment.GetEnvironmentVariable("DATABASE_URL");
 
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new InvalidOperationException("Database connection string not found. Please set DATABASE_URL environment variable.");
+}
+
 builder.Services.AddDbContext<ApplicationDbContext>(options=> 
     options.UseNpgsql(connectionString));
 
