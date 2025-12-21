@@ -22,45 +22,8 @@ builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, relo
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
-// Get connection string - Railway uses DATABASE_URL or individual PG* variables
-var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") 
-    ?? Environment.GetEnvironmentVariable("DATABASE_PUBLIC_URL")
-    ?? builder.Configuration.GetConnectionString("DefaultConnection");
-
-// If no DATABASE_URL, try building from Railway's PG* variables
-if (string.IsNullOrEmpty(connectionString) || connectionString == "YOUR_CONNECTION_STRING_HERE")
-{
-    var pgHost = Environment.GetEnvironmentVariable("PGHOST");
-    var pgPort = Environment.GetEnvironmentVariable("PGPORT");
-    var pgUser = Environment.GetEnvironmentVariable("PGUSER");
-    var pgPassword = Environment.GetEnvironmentVariable("PGPASSWORD");
-    var pgDatabase = Environment.GetEnvironmentVariable("PGDATABASE");
-    
-    if (!string.IsNullOrEmpty(pgHost) && !string.IsNullOrEmpty(pgPassword))
-    {
-        connectionString = $"Host={pgHost};Port={pgPort ?? "5432"};Username={pgUser ?? "postgres"};Password={pgPassword};Database={pgDatabase ?? "railway"}";
-        Console.WriteLine("Built connection string from PG* variables");
-    }
-}
-
-Console.WriteLine($"Connection string found: {!string.IsNullOrEmpty(connectionString)}");
-Console.WriteLine($"Connection string length: {connectionString?.Length ?? 0}");
-Console.WriteLine($"Full connection string: {connectionString}");
-
-if (string.IsNullOrEmpty(connectionString))
-{
-    throw new InvalidOperationException("Database connection string not found. Please set DATABASE_URL or PG* environment variables.");
-}
-
-// Convert Railway's postgres:// URL to Npgsql format if needed
-if (connectionString.StartsWith("postgres://"))
-{
-    connectionString = connectionString.Replace("postgres://", "postgresql://");
-}
-
 builder.Services.AddDbContext<ApplicationDbContext>(options=> 
-    options.UseNpgsql(connectionString));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.Configure<SSLCommerzSettings>(builder.Configuration.GetSection("SSLCommerz"));
 builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<SSLCommerzSettings>>().Value);
