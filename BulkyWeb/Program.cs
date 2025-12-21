@@ -24,12 +24,18 @@ builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, relo
 builder.Services.AddControllersWithViews();
 
 // Get connection string - Railway uses DATABASE_URL environment variable
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-    ?? Environment.GetEnvironmentVariable("DATABASE_URL");
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") 
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
-if (string.IsNullOrEmpty(connectionString))
+if (string.IsNullOrEmpty(connectionString) || connectionString == "YOUR_CONNECTION_STRING_HERE")
 {
     throw new InvalidOperationException("Database connection string not found. Please set DATABASE_URL environment variable.");
+}
+
+// Convert Railway's postgres:// URL to Npgsql format if needed
+if (connectionString.StartsWith("postgres://"))
+{
+    connectionString = connectionString.Replace("postgres://", "postgresql://");
 }
 
 builder.Services.AddDbContext<ApplicationDbContext>(options=> 
