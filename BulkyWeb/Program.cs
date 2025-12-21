@@ -46,6 +46,7 @@ if (string.IsNullOrEmpty(connectionString) || connectionString == "YOUR_CONNECTI
 
 Console.WriteLine($"Connection string found: {!string.IsNullOrEmpty(connectionString)}");
 Console.WriteLine($"Connection string length: {connectionString?.Length ?? 0}");
+Console.WriteLine($"Full connection string: {connectionString}");
 
 if (string.IsNullOrEmpty(connectionString))
 {
