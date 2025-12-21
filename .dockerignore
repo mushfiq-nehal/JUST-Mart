@@ -1,0 +1,13 @@
+**/.vs
+**/.vscode
+**/bin
+**/obj
+**/publish
+**/*.user
+**/.DS_Store
+**/node_modules
+**/.git
+**/.gitignore
+**/.gitattributes
+**/appsettings.Local.json
+**/appsettings.Development.json
