@@ -23,7 +23,7 @@ builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, relo
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options=> 
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.Configure<SSLCommerzSettings>(builder.Configuration.GetSection("SSLCommerz"));
 builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<SSLCommerzSettings>>().Value);
