@@ -23,8 +23,9 @@ builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, relo
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Get connection string - Railway uses DATABASE_URL environment variable
+// Get connection string - Railway uses DATABASE_URL or DATABASE_PUBLIC_URL
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") 
+    ?? Environment.GetEnvironmentVariable("DATABASE_PUBLIC_URL")
     ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
 if (string.IsNullOrEmpty(connectionString) || connectionString == "YOUR_CONNECTION_STRING_HERE")
