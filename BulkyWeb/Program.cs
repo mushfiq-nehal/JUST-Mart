@@ -22,8 +22,13 @@ builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, relo
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Get connection string - Railway uses DATABASE_URL environment variable
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+    ?? Environment.GetEnvironmentVariable("DATABASE_URL");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options=> 
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 builder.Services.Configure<SSLCommerzSettings>(builder.Configuration.GetSection("SSLCommerz"));
 builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<SSLCommerzSettings>>().Value);
