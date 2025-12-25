@@ -1,4 +1,4 @@
 {
     "appService.defaultWebAppToDeploy": "/subscriptions/c80278e2-9cd2-47f2-abea-9652df36a705/resourceGroups/just-mart-nehal_group/providers/Microsoft.Web/sites/just-mart-nehal",
-    "appService.deploySubpath": "BulkyWeb/publish"
+    "appService.deploySubpath": "JustMartWeb/publish"
 }

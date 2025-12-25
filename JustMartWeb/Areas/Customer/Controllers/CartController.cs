@@ -120,7 +120,14 @@ namespace JustMartWeb.Areas.Customer.Controllers {
 
 			if (applicationUser.CompanyId.GetValueOrDefault() == 0) {
                 //it is a regular customer - initiate SSLCommerz payment
-                var domain = $"{Request.Scheme}://{Request.Host}";
+                var domain = HttpContext.Request.Headers["X-Forwarded-Host"].FirstOrDefault()
+                    ?? HttpContext.Request.Headers["X-Original-Host"].FirstOrDefault()
+                    ?? $"{Request.Scheme}://{Request.Host}";
+                
+                if (!domain.StartsWith("http"))
+                {
+                    domain = $"https://{domain}";
+                }
                 
                 var sslRequest = new SSLCommerzRequest
                 {
@@ -208,57 +215,86 @@ namespace JustMartWeb.Areas.Customer.Controllers {
         [AllowAnonymous]
         public async Task<IActionResult> PaymentSuccess()
         {
-            var valId = Request.Form["val_id"].ToString();
-            var tranId = Request.Form["tran_id"].ToString();
-            
-            // Debug logging
-            TempData["Debug"] = $"Received - valId: {valId}, tranId: {tranId}";
-
-            if (string.IsNullOrEmpty(valId) || string.IsNullOrEmpty(tranId))
+            try
             {
-                TempData["error"] = "Invalid payment response - Missing val_id or tran_id";
-                return RedirectToAction("Index", "Home");
-            }
+                // Log all incoming data
+                var allFormData = string.Join(", ", Request.Form.Select(f => $"{f.Key}={f.Value}"));
+                System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: PaymentSuccess Called - {allFormData}\n");
 
-            // Validate payment with SSLCommerz
-            var validationResponse = await _sslCommerzService.ValidatePayment(valId);
-            
-            TempData["Debug2"] = $"Validation Status: {validationResponse.Status}, Bank Tran: {validationResponse.Bank_tran_id}, Card: {validationResponse.Card_type}";
+                var valId = Request.Form["val_id"].ToString();
+                var tranId = Request.Form["tran_id"].ToString();
+                
+                // Debug logging
+                TempData["Debug"] = $"Received - valId: {valId}, tranId: {tranId}";
 
-            if (validationResponse.Status == "VALID" || validationResponse.Status == "VALIDATED")
-            {
-                // Extract order ID from transaction ID (format: JUST_OrderId)
-                var orderIdStr = tranId.Replace("JUST_", "");
-                if (int.TryParse(orderIdStr, out int orderId))
+                if (string.IsNullOrEmpty(valId) || string.IsNullOrEmpty(tranId))
                 {
-                    var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderId);
-                    if (orderHeader != null)
-                    {
-                        // Update payment status and save transaction details
-                        orderHeader.PaymentIntentId = validationResponse.Bank_tran_id ?? validationResponse.Tran_id;
-                        orderHeader.PaymentDate = DateTime.Now;
-                        
-                        // Store additional payment info in SessionId field for reference
-                        var paymentInfo = $"{validationResponse.Card_type ?? "Online"} - {validationResponse.Card_brand ?? "SSLCommerz"}";
-                        if (string.IsNullOrEmpty(orderHeader.SessionId) || !orderHeader.SessionId.Contains("|"))
-                        {
-                            orderHeader.SessionId = $"{orderHeader.SessionId}|{paymentInfo}";
-                        }
-                        
-                        TempData["Debug3"] = $"Saving - PaymentIntentId: {orderHeader.PaymentIntentId}, SessionId: {orderHeader.SessionId}";
-                        
-                        _unitOfWork.OrderHeader.Update(orderHeader);
-                        _unitOfWork.OrderHeader.UpdateStatus(orderId, SD.StatusApproved, SD.PaymentStatusApproved);
-                        _unitOfWork.Save();
+                    System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Missing val_id or tran_id\n");
+                    TempData["error"] = "Invalid payment response - Missing val_id or tran_id";
+                    return RedirectToAction("Index", "Home");
+                }
 
-                        TempData["success"] = "Payment verified successfully!";
-                        return RedirectToAction(nameof(OrderConfirmation), new { id = orderId });
+                // Validate payment with SSLCommerz
+                var validationResponse = await _sslCommerzService.ValidatePayment(valId);
+                
+                TempData["Debug2"] = $"Validation Status: {validationResponse.Status}, Bank Tran: {validationResponse.Bank_tran_id}, Card: {validationResponse.Card_type}";
+                System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Validation Status: {validationResponse.Status}\n");
+
+                if (validationResponse.Status == "VALID" || validationResponse.Status == "VALIDATED")
+                {
+                    // Extract order ID from transaction ID (format: JUST_OrderId)
+                    var orderIdStr = tranId.Replace("JUST_", "");
+                    if (int.TryParse(orderIdStr, out int orderId))
+                    {
+                        var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderId);
+                        if (orderHeader != null)
+                        {
+                            // Update payment status and save transaction details
+                            orderHeader.PaymentIntentId = validationResponse.Bank_tran_id ?? validationResponse.Tran_id;
+                            orderHeader.PaymentDate = DateTime.Now;
+                            
+                            // Store additional payment info in SessionId field for reference
+                            var paymentInfo = $"{validationResponse.Card_type ?? "Online"} - {validationResponse.Card_brand ?? "SSLCommerz"}";
+                            if (string.IsNullOrEmpty(orderHeader.SessionId) || !orderHeader.SessionId.Contains("|"))
+                            {
+                                orderHeader.SessionId = $"{orderHeader.SessionId}|{paymentInfo}";
+                            }
+                            
+                            TempData["Debug3"] = $"Saving - PaymentIntentId: {orderHeader.PaymentIntentId}, SessionId: {orderHeader.SessionId}";
+                            
+                            _unitOfWork.OrderHeader.Update(orderHeader);
+                            _unitOfWork.OrderHeader.UpdateStatus(orderId, SD.StatusApproved, SD.PaymentStatusApproved);
+                            _unitOfWork.Save();
+
+                            System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Payment Updated Successfully for Order {orderId}\n");
+                            
+                            TempData["success"] = "Payment verified successfully!";
+                            return RedirectToAction(nameof(OrderConfirmation), new { id = orderId });
+                        }
+                        else
+                        {
+                            System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Order not found: {orderId}\n");
+                        }
+                    }
+                    else
+                    {
+                        System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Failed to parse order ID from: {tranId}\n");
                     }
                 }
-            }
+                else
+                {
+                    System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Invalid validation status: {validationResponse.Status}\n");
+                }
 
-            TempData["error"] = $"Payment validation failed - Status: {validationResponse.Status}";
-            return RedirectToAction("Index", "Home");
+                TempData["error"] = $"Payment validation failed - Status: {validationResponse.Status}";
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Exception in PaymentSuccess: {ex.Message}\n{ex.StackTrace}\n");
+                TempData["error"] = $"Payment processing error: {ex.Message}";
+                return RedirectToAction("Index", "Home");
+            }
         }
 
         [HttpPost]
@@ -310,6 +346,10 @@ namespace JustMartWeb.Areas.Customer.Controllers {
         {
             try
             {
+                // Log all form data for debugging
+                var allFormData = string.Join(", ", Request.Form.Select(f => $"{f.Key}={f.Value}"));
+                System.IO.File.AppendAllText("ipn_log.txt", $"{DateTime.Now}: IPN Received - {allFormData}\n");
+
                 var valId = Request.Form["val_id"].ToString();
                 var tranId = Request.Form["tran_id"].ToString();
                 var status = Request.Form["status"].ToString();
@@ -346,6 +386,7 @@ namespace JustMartWeb.Areas.Customer.Controllers {
                             _unitOfWork.OrderHeader.UpdateStatus(orderId, SD.StatusApproved, SD.PaymentStatusApproved);
                             _unitOfWork.Save();
 
+                            System.IO.File.AppendAllText("ipn_log.txt", $"{DateTime.Now}: Payment Updated Successfully for Order {orderId}\n");
                             return Ok("IPN processed successfully");
                         }
                     }
@@ -355,9 +396,21 @@ namespace JustMartWeb.Areas.Customer.Controllers {
             }
             catch (Exception ex)
             {
+                System.IO.File.AppendAllText("ipn_log.txt", $"{DateTime.Now}: IPN Error - {ex.Message}\n");
                 // Log error but return OK to SSLCommerz
                 return Ok($"IPN error: {ex.Message}");
             }
+        }
+
+        // Test endpoint to verify server accessibility
+        [HttpGet]
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult PaymentTest()
+        {
+            var logMessage = $"{DateTime.Now}: Test endpoint called - Method: {Request.Method}, IP: {HttpContext.Connection.RemoteIpAddress}\n";
+            System.IO.File.AppendAllText("payment_test_log.txt", logMessage);
+            return Ok(new { message = "Payment endpoint is accessible", timestamp = DateTime.Now });
         }
 
 
