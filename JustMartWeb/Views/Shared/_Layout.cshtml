@@ -1,0 +1,130 @@
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - JUST Mart</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/JustMartWeb.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="//cdn.datatables.net/1.13.3/css/jquery.dataTables.min.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 2px 20px rgba(255, 107, 107, 0.1); border-bottom: 1px solid rgba(255, 107, 107, 0.1);">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand d-flex align-items-center fw-bold fs-4" asp-area="" asp-controller="Home" asp-action="Index" style="transition: transform 0.3s ease;">
+                    <img src="~/logo/justmart-logo.png" alt="JUST Mart Logo" style="height: 55px; width: auto; object-fit: contain;" class="me-2" />
+                </a>
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link px-3 py-2 mx-1 fw-semibold position-relative nav-link-modern" asp-area="Customer" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door me-1"></i>Home
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link px-3 py-2 mx-1 fw-semibold position-relative nav-link-modern" asp-area="Admin" asp-controller="Order" asp-action="Index">
+                                <i class="bi bi-box-seam me-1"></i>Orders
+                            </a>
+                        </li>
+                        @if (User.IsInRole(SD.Role_Admin))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle px-3 py-2 mx-1 fw-semibold position-relative nav-link-modern" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-gear me-1"></i>Manage
+                                </a>
+                                <ul class="dropdown-menu shadow-lg border-0 mt-2" style="border-radius: 12px; overflow: hidden; animation: dropdownSlide 0.3s ease;">
+                                    <li class="nav-item">
+                                        <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Admin" asp-controller="Category" asp-action="Index">
+                                            <i class="bi bi-tags me-2" style="color: #ff6b6b;"></i>Categories
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Admin" asp-controller="Product" asp-action="Index">
+                                            <i class="bi bi-box me-2" style="color: #ff6b6b;"></i>Products
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Admin" asp-controller="Company" asp-action="Index">
+                                            <i class="bi bi-building me-2" style="color: #ff6b6b;"></i>Companies
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Identity" asp-page="/Account/Register">
+                                            <i class="bi bi-person-plus me-2" style="color: #ff6b6b;"></i>Create User
+                                        </a>
+                                    </li>
+                                     <li class="nav-item">
+                                        <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Admin" asp-controller="User" asp-action="Index">
+                                            <i class="bi bi-people me-2" style="color: #ff6b6b;"></i>Manage Users
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                    
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        <li class="nav-item me-3">
+                            <a class="nav-link px-3 py-2 position-relative cart-link" asp-area="Customer" asp-controller="Cart" asp-action="Index" style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); color: white; border-radius: 25px; font-weight: 600; transition: all 0.3s ease;">
+                                <i class="bi bi-cart3 me-1" style="font-size: 1.1rem;"></i>Cart
+                                @await Component.InvokeAsync("ShoppingCart")
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <partial name="_LoginPartial" />
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div style="padding-top: 80px;"></div>
+    <div class="container">
+        <main role="main" class="pb-3">
+            <partial name="_Notification" />
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted" style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); border: none !important;">
+        <div class="container py-3">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                    <img src="~/logo/justmart-logo.png" alt="JUST Mart Logo" style="height: 35px; width: auto; object-fit: contain; filter: brightness(0) invert(1);" class="me-3 mb-2" />
+                    <p class="text-white mb-0 d-inline-block">
+                        <span class="opacity-75">Your one-stop shop for amazing products</span>
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="mb-0 text-white">
+                        Made with <i class="bi bi-heart-fill text-danger"></i> by <strong>Nehal</strong>
+                        <span class="opacity-75 ms-3">&copy; 2025</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="//cdn.datatables.net/1.13.3/js/jquery.dataTables.min.js" asp-append-version="true"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
