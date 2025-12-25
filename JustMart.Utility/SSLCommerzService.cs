@@ -53,6 +53,14 @@ namespace JustMart.Utility
                 var response = await _httpClient.PostAsync($"{baseUrl}/gwprocess/v4/api.php", content);
                 var responseString = await response.Content.ReadAsStringAsync();
 
+                // Log the raw response for debugging
+                try
+                {
+                    System.IO.File.AppendAllText("sslcommerz_init_log.txt", 
+                        $"{DateTime.Now}: SSLCommerz Init Response: {responseString}\n\n");
+                }
+                catch { }
+
                 var sslResponse = JsonSerializer.Deserialize<SSLCommerzResponse>(responseString, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
@@ -66,6 +74,14 @@ namespace JustMart.Utility
                         Failedreason = "Failed to parse response from SSLCommerz" 
                     };
                 }
+
+                // Log parsed response status
+                try
+                {
+                    System.IO.File.AppendAllText("sslcommerz_init_log.txt", 
+                        $"{DateTime.Now}: Parsed Status: {sslResponse.Status}, GatewayURL: {sslResponse.GatewayPageURL}, Reason: {sslResponse.Failedreason}\n\n");
+                }
+                catch { }
 
                 return sslResponse;
             }

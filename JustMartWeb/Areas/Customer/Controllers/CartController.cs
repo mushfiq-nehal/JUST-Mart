@@ -150,6 +150,10 @@ namespace JustMartWeb.Areas.Customer.Controllers {
 
                 var paymentResponse = await _sslCommerzService.InitiatePayment(sslRequest);
                 
+                // Log the payment initiation for debugging
+                System.IO.File.AppendAllText("payment_init_log.txt", 
+                    $"{DateTime.Now}: Payment Init - Order: {ShoppingCartVM.OrderHeader.Id}, Status: {paymentResponse.Status}, URL: {paymentResponse.GatewayPageURL}, Reason: {paymentResponse.Failedreason}\n");
+                
                 if (paymentResponse.Status == "SUCCESS")
                 {
                     // Store SessionKey for later validation
@@ -162,7 +166,9 @@ namespace JustMartWeb.Areas.Customer.Controllers {
                 }
                 else
                 {
-                    TempData["error"] = "Payment initiation failed: " + paymentResponse.Failedreason;
+                    TempData["error"] = $"Payment initiation failed: {paymentResponse.Failedreason ?? "Unknown error"}. Status: {paymentResponse.Status}";
+                    System.IO.File.AppendAllText("payment_init_log.txt", 
+                        $"{DateTime.Now}: Payment Init FAILED - Order: {ShoppingCartVM.OrderHeader.Id}, Full Error: {paymentResponse.Failedreason}\n");
                     return RedirectToAction(nameof(Summary));
                 }
 			}
@@ -420,6 +426,7 @@ namespace JustMartWeb.Areas.Customer.Controllers {
         {
             var logs = new
             {
+                SSLCommerzInitLog = System.IO.File.Exists("sslcommerz_init_log.txt") ? System.IO.File.ReadAllText("sslcommerz_init_log.txt") : "No SSLCommerz init log found",
                 PaymentLog = System.IO.File.Exists("payment_log.txt") ? System.IO.File.ReadAllText("payment_log.txt") : "No payment log found",
                 IpnLog = System.IO.File.Exists("ipn_log.txt") ? System.IO.File.ReadAllText("ipn_log.txt") : "No IPN log found",
                 TestLog = System.IO.File.Exists("payment_test_log.txt") ? System.IO.File.ReadAllText("payment_test_log.txt") : "No test log found"
