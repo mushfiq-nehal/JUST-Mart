@@ -413,6 +413,20 @@ namespace JustMartWeb.Areas.Customer.Controllers {
             return Ok(new { message = "Payment endpoint is accessible", timestamp = DateTime.Now });
         }
 
+        // View payment logs (for debugging - remove in production)
+        [HttpGet]
+        [Authorize(Roles = SD.Role_Admin)]
+        public IActionResult ViewPaymentLogs()
+        {
+            var logs = new
+            {
+                PaymentLog = System.IO.File.Exists("payment_log.txt") ? System.IO.File.ReadAllText("payment_log.txt") : "No payment log found",
+                IpnLog = System.IO.File.Exists("ipn_log.txt") ? System.IO.File.ReadAllText("ipn_log.txt") : "No IPN log found",
+                TestLog = System.IO.File.Exists("payment_test_log.txt") ? System.IO.File.ReadAllText("payment_test_log.txt") : "No test log found"
+            };
+            return Ok(logs);
+        }
+
 
 		public IActionResult Plus(int cartId) {
             var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.Id == cartId);
