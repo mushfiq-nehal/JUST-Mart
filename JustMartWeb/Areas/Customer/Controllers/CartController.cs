@@ -219,7 +219,7 @@ namespace JustMartWeb.Areas.Customer.Controllers {
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> PaymentSuccess()
+        public IActionResult PaymentSuccess()
         {
             try
             {
@@ -227,72 +227,30 @@ namespace JustMartWeb.Areas.Customer.Controllers {
                 var allFormData = string.Join(", ", Request.Form.Select(f => $"{f.Key}={f.Value}"));
                 System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: PaymentSuccess Called - {allFormData}\n");
 
-                var valId = Request.Form["val_id"].ToString();
                 var tranId = Request.Form["tran_id"].ToString();
+                var status = Request.Form["status"].ToString();
                 
-                // Debug logging
-                TempData["Debug"] = $"Received - valId: {valId}, tranId: {tranId}";
+                System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Status from form: {status}\n");
 
-                if (string.IsNullOrEmpty(valId) || string.IsNullOrEmpty(tranId))
+                // Extract order ID from transaction ID (format: JUST_OrderId)
+                var orderIdStr = tranId.Replace("JUST_", "");
+                if (int.TryParse(orderIdStr, out int orderId))
                 {
-                    System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Missing val_id or tran_id\n");
-                    TempData["error"] = "Invalid payment response - Missing val_id or tran_id";
-                    return RedirectToAction("Index", "Home");
-                }
-
-                // Validate payment with SSLCommerz
-                var validationResponse = await _sslCommerzService.ValidatePayment(valId);
-                
-                TempData["Debug2"] = $"Validation Status: {validationResponse.Status}, Bank Tran: {validationResponse.Bank_tran_id}, Card: {validationResponse.Card_type}";
-                System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Validation Status: {validationResponse.Status}\n");
-
-                if (validationResponse.Status == "VALID" || validationResponse.Status == "VALIDATED")
-                {
-                    // Extract order ID from transaction ID (format: JUST_OrderId)
-                    var orderIdStr = tranId.Replace("JUST_", "");
-                    if (int.TryParse(orderIdStr, out int orderId))
+                    // Payment should already be updated via IPN
+                    // Just redirect to confirmation page
+                    if (status == "VALID")
                     {
-                        var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderId);
-                        if (orderHeader != null)
-                        {
-                            // Update payment status and save transaction details
-                            orderHeader.PaymentIntentId = validationResponse.Bank_tran_id ?? validationResponse.Tran_id;
-                            orderHeader.PaymentDate = DateTime.Now;
-                            
-                            // Store additional payment info in SessionId field for reference
-                            var paymentInfo = $"{validationResponse.Card_type ?? "Online"} - {validationResponse.Card_brand ?? "SSLCommerz"}";
-                            if (string.IsNullOrEmpty(orderHeader.SessionId) || !orderHeader.SessionId.Contains("|"))
-                            {
-                                orderHeader.SessionId = $"{orderHeader.SessionId}|{paymentInfo}";
-                            }
-                            
-                            TempData["Debug3"] = $"Saving - PaymentIntentId: {orderHeader.PaymentIntentId}, SessionId: {orderHeader.SessionId}";
-                            
-                            _unitOfWork.OrderHeader.Update(orderHeader);
-                            _unitOfWork.OrderHeader.UpdateStatus(orderId, SD.StatusApproved, SD.PaymentStatusApproved);
-                            _unitOfWork.Save();
-
-                            System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Payment Updated Successfully for Order {orderId}\n");
-                            
-                            TempData["success"] = "Payment verified successfully!";
-                            return RedirectToAction(nameof(OrderConfirmation), new { id = orderId });
-                        }
-                        else
-                        {
-                            System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Order not found: {orderId}\n");
-                        }
-                    }
-                    else
-                    {
-                        System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Failed to parse order ID from: {tranId}\n");
+                        System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Redirecting to confirmation for Order {orderId}\n");
+                        TempData["success"] = "Payment completed successfully!";
+                        return RedirectToAction(nameof(OrderConfirmation), new { id = orderId });
                     }
                 }
                 else
                 {
-                    System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Invalid validation status: {validationResponse.Status}\n");
+                    System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Failed to parse order ID from: {tranId}\n");
                 }
 
-                TempData["error"] = $"Payment validation failed - Status: {validationResponse.Status}";
+                TempData["error"] = "Payment could not be verified";
                 return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
@@ -348,7 +306,7 @@ namespace JustMartWeb.Areas.Customer.Controllers {
         // IPN (Instant Payment Notification) endpoint for SSLCommerz
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> PaymentIPN()
+        public IActionResult PaymentIPN()
         {
             try
             {
@@ -356,45 +314,47 @@ namespace JustMartWeb.Areas.Customer.Controllers {
                 var allFormData = string.Join(", ", Request.Form.Select(f => $"{f.Key}={f.Value}"));
                 System.IO.File.AppendAllText("ipn_log.txt", $"{DateTime.Now}: IPN Received - {allFormData}\n");
 
-                var valId = Request.Form["val_id"].ToString();
-                var tranId = Request.Form["tran_id"].ToString();
                 var status = Request.Form["status"].ToString();
+                var tranId = Request.Form["tran_id"].ToString();
+                var valId = Request.Form["val_id"].ToString();
+                var bankTranId = Request.Form["bank_tran_id"].ToString();
+                var cardType = Request.Form["card_type"].ToString();
+                var cardBrand = Request.Form["card_brand"].ToString();
 
-                if (string.IsNullOrEmpty(valId) || string.IsNullOrEmpty(tranId))
+                if (string.IsNullOrEmpty(tranId) || status != "VALID")
                 {
-                    return BadRequest("Invalid IPN data");
+                    System.IO.File.AppendAllText("ipn_log.txt", $"{DateTime.Now}: IPN rejected - Invalid status or missing tran_id\n");
+                    return Ok("IPN received");
                 }
 
-                // Validate payment with SSLCommerz
-                var validationResponse = await _sslCommerzService.ValidatePayment(valId);
-
-                if ((validationResponse.Status == "VALID" || validationResponse.Status == "VALIDATED") && status == "VALID")
+                // Extract order ID from transaction ID
+                var orderIdStr = tranId.Replace("JUST_", "");
+                if (int.TryParse(orderIdStr, out int orderId))
                 {
-                    // Extract order ID from transaction ID
-                    var orderIdStr = tranId.Replace("JUST_", "");
-                    if (int.TryParse(orderIdStr, out int orderId))
+                    var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderId);
+                    if (orderHeader != null && orderHeader.PaymentStatus != SD.PaymentStatusApproved)
                     {
-                        var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderId);
-                        if (orderHeader != null && orderHeader.PaymentStatus != SD.PaymentStatusApproved)
+                        // Update payment status from IPN data
+                        orderHeader.PaymentIntentId = bankTranId;
+                        orderHeader.PaymentDate = DateTime.Now;
+                        
+                        // Store payment info
+                        var paymentInfo = $"{cardType} - {cardBrand}";
+                        if (string.IsNullOrEmpty(orderHeader.SessionId) || !orderHeader.SessionId.Contains("|"))
                         {
-                            // Update payment status
-                            orderHeader.PaymentIntentId = validationResponse.Bank_tran_id ?? validationResponse.Tran_id;
-                            orderHeader.PaymentDate = DateTime.Now;
-                            
-                            // Store payment info
-                            var paymentInfo = $"{validationResponse.Card_type ?? "Online"} - {validationResponse.Card_brand ?? "SSLCommerz"}";
-                            if (string.IsNullOrEmpty(orderHeader.SessionId) || !orderHeader.SessionId.Contains("|"))
-                            {
-                                orderHeader.SessionId = $"{orderHeader.SessionId}|{paymentInfo}";
-                            }
-                            
-                            _unitOfWork.OrderHeader.Update(orderHeader);
-                            _unitOfWork.OrderHeader.UpdateStatus(orderId, SD.StatusApproved, SD.PaymentStatusApproved);
-                            _unitOfWork.Save();
-
-                            System.IO.File.AppendAllText("ipn_log.txt", $"{DateTime.Now}: Payment Updated Successfully for Order {orderId}\n");
-                            return Ok("IPN processed successfully");
+                            orderHeader.SessionId = $"{orderHeader.SessionId}|{paymentInfo}";
                         }
+                        
+                        _unitOfWork.OrderHeader.Update(orderHeader);
+                        _unitOfWork.OrderHeader.UpdateStatus(orderId, SD.StatusApproved, SD.PaymentStatusApproved);
+                        _unitOfWork.Save();
+
+                        System.IO.File.AppendAllText("ipn_log.txt", $"{DateTime.Now}: Payment Updated Successfully for Order {orderId} via IPN\n");
+                        return Ok("IPN processed successfully");
+                    }
+                    else
+                    {
+                        System.IO.File.AppendAllText("ipn_log.txt", $"{DateTime.Now}: Order {orderId} already processed or not found\n");
                     }
                 }
 
@@ -403,7 +363,6 @@ namespace JustMartWeb.Areas.Customer.Controllers {
             catch (Exception ex)
             {
                 System.IO.File.AppendAllText("ipn_log.txt", $"{DateTime.Now}: IPN Error - {ex.Message}\n");
-                // Log error but return OK to SSLCommerz
                 return Ok($"IPN error: {ex.Message}");
             }
         }
