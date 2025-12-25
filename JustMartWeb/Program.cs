@@ -27,6 +27,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options=>
 
 builder.Services.Configure<SSLCommerzSettings>(builder.Configuration.GetSection("SSLCommerz"));
 builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<SSLCommerzSettings>>().Value);
+builder.Services.AddScoped<SSLCommerzService>();
 
 builder.Services.AddIdentity<IdentityUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 builder.Services.ConfigureApplicationCookie(options => {

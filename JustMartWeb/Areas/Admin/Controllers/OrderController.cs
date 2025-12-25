@@ -5,7 +5,6 @@ using JustMart.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-// TODO: Implement SSLCommerz payment integration
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -16,11 +15,13 @@ namespace JustMartWeb.Areas.Admin.Controllers {
 
 
 		private readonly IUnitOfWork _unitOfWork;
+        private readonly SSLCommerzService _sslCommerzService;
         [BindProperty]
         public OrderVM OrderVM { get; set; }
-        public OrderController(IUnitOfWork unitOfWork)
+        public OrderController(IUnitOfWork unitOfWork, SSLCommerzService sslCommerzService)
         {
             _unitOfWork = unitOfWork;
+            _sslCommerzService = sslCommerzService;
         }
 
         public IActionResult Index() {
@@ -112,26 +113,123 @@ namespace JustMartWeb.Areas.Admin.Controllers {
 
         [ActionName("Details")]
         [HttpPost]
-        public IActionResult Details_PAY_NOW() 
+        public async Task<IActionResult> Details_PAY_NOW() 
         {
             OrderVM.OrderHeader = _unitOfWork.OrderHeader
                 .Get(u => u.Id == OrderVM.OrderHeader.Id, includeProperties: "ApplicationUser");
             OrderVM.OrderDetail = _unitOfWork.OrderDetail
                 .GetAll(u => u.OrderHeaderId == OrderVM.OrderHeader.Id, includeProperties: "Product");
 
-            // TODO: Implement payment gateway integration
-            // For now, mark as paid directly
-            _unitOfWork.OrderHeader.UpdateStatus(OrderVM.OrderHeader.Id, SD.StatusApproved, SD.PaymentStatusApproved);
-            _unitOfWork.Save();
-            TempData["Success"] = "Payment processed successfully (Test Mode - No Gateway)";
-            return RedirectToAction(nameof(Details), new { orderId = OrderVM.OrderHeader.Id });
+            // Initiate SSLCommerz payment for company users with delayed payment
+            var domain = $"{Request.Scheme}://{Request.Host}";
+            
+            var sslRequest = new SSLCommerzRequest
+            {
+                TotalAmount = (decimal)OrderVM.OrderHeader.OrderTotal,
+                Currency = "BDT",
+                TransactionId = "JUST_" + OrderVM.OrderHeader.Id.ToString(),
+                SuccessUrl = $"{domain}/admin/order/PaymentSuccess",
+                FailUrl = $"{domain}/admin/order/PaymentFail",
+                CancelUrl = $"{domain}/admin/order/PaymentCancel",
+                CustomerName = OrderVM.OrderHeader.Name,
+                CustomerEmail = OrderVM.OrderHeader.ApplicationUser.Email,
+                CustomerAddress = OrderVM.OrderHeader.StreetAddress,
+                CustomerCity = OrderVM.OrderHeader.City,
+                CustomerCountry = "Bangladesh",
+                CustomerPhone = OrderVM.OrderHeader.PhoneNumber,
+                ProductName = "JUST Mart Order #" + OrderVM.OrderHeader.Id,
+                ProductCategory = "General"
+            };
+
+            var paymentResponse = await _sslCommerzService.InitiatePayment(sslRequest);
+            
+            if (paymentResponse.Status == "SUCCESS")
+            {
+                // Store SessionKey for later validation
+                OrderVM.OrderHeader.SessionId = paymentResponse.SessionKey;
+                _unitOfWork.OrderHeader.Update(OrderVM.OrderHeader);
+                _unitOfWork.Save();
+                
+                // Redirect to SSLCommerz payment gateway
+                return Redirect(paymentResponse.GatewayPageURL);
+            }
+            else
+            {
+                TempData["error"] = "Payment initiation failed: " + paymentResponse.Failedreason;
+                return RedirectToAction(nameof(Details), new { orderId = OrderVM.OrderHeader.Id });
+            }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> PaymentSuccess()
+        {
+            var valId = Request.Form["val_id"].ToString();
+            var tranId = Request.Form["tran_id"].ToString();
+
+            if (string.IsNullOrEmpty(valId) || string.IsNullOrEmpty(tranId))
+            {
+                TempData["error"] = "Invalid payment response";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Validate payment with SSLCommerz
+            var validationResponse = await _sslCommerzService.ValidatePayment(valId);
+
+            if (validationResponse.Status == "VALID" || validationResponse.Status == "VALIDATED")
+            {
+                // Extract order ID from transaction ID (format: JUST_OrderId)
+                var orderIdStr = tranId.Replace("JUST_", "");
+                if (int.TryParse(orderIdStr, out int orderId))
+                {
+                    var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderId);
+                    if (orderHeader != null)
+                    {
+                        // Update payment status and save transaction details
+                        orderHeader.PaymentIntentId = validationResponse.Bank_tran_id ?? validationResponse.Tran_id;
+                        orderHeader.PaymentDate = DateTime.Now;
+                        
+                        // Store additional payment info
+                        var paymentInfo = $"{validationResponse.Card_type ?? "Online"} - {validationResponse.Card_brand ?? "SSLCommerz"}";
+                        if (string.IsNullOrEmpty(orderHeader.SessionId) || !orderHeader.SessionId.Contains("|"))
+                        {
+                            orderHeader.SessionId = $"{orderHeader.SessionId}|{paymentInfo}";
+                        }
+                        
+                        _unitOfWork.OrderHeader.Update(orderHeader);
+                        _unitOfWork.OrderHeader.UpdateStatus(orderId, orderHeader.OrderStatus, SD.PaymentStatusApproved);
+                        _unitOfWork.Save();
+
+                        TempData["Success"] = "Payment received successfully!";
+                        return RedirectToAction(nameof(Details), new { orderId = orderId });
+                    }
+                }
+            }
+
+            TempData["error"] = "Payment validation failed";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult PaymentFail()
+        {
+            TempData["error"] = "Payment failed. Please try again.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult PaymentCancel()
+        {
+            TempData["error"] = "Payment was cancelled.";
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult PaymentConfirmation(int orderHeaderId) {
 
             OrderHeader orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderHeaderId);
-            // TODO: Payment validation will be added with payment gateway
-            // For now, order is already approved
+            // Payment is already validated in callback methods
             return View(orderHeaderId);
         }
 

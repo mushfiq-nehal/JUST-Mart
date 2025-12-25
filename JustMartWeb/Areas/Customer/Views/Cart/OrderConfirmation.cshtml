@@ -1,14 +1,113 @@
 ﻿@model int
 
-<div class="container row pt-4">
-    <div class="col-12 text-center">
-        <h1 class="text-primary text-center">Order Placed Successfully!</h1>
-        Your Order Number is : @Model <br/><br/>
-        <img src="~/images/lawn_leaf.jpg" width="65%" />
+@if (TempData["Debug"] != null || TempData["Debug2"] != null || TempData["Debug3"] != null)
+{
+    <div class="alert alert-info">
+        <strong>Debug Info:</strong><br/>
+        @TempData["Debug"]<br/>
+        @TempData["Debug2"]<br/>
+        @TempData["Debug3"]
     </div>
-    <div class="col-12 text-center" style="color:maroon">
-        <br/>
-        Your order has been placed successfully! <br/>
-    </div>
+}
 
-</div> 
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Success Card -->
+            <div class="card border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+                <!-- Success Header -->
+                <div class="text-center p-5" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <div class="mb-4">
+                        <div class="success-icon mx-auto" style="width: 100px; height: 100px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: scaleIn 0.5s ease-out;">
+                            <i class="bi bi-check-circle-fill" style="font-size: 4rem; color: #10b981;"></i>
+                        </div>
+                    </div>
+                    <h1 class="text-white fw-bold mb-2">Payment Successful!</h1>
+                    <p class="text-white opacity-90 mb-0" style="font-size: 1.1rem;">Thank you for your order</p>
+                </div>
+
+                <!-- Order Details -->
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <p class="text-muted mb-2">Your order has been placed successfully</p>
+                        <h3 class="fw-bold mb-0" style="color: #ff6b6b;">
+                            Order #@Model
+                        </h3>
+                    </div>
+
+                    <!-- Info Boxes -->
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-6">
+                            <div class="p-4 h-100 text-center" style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(250, 82, 82, 0.1) 100%); border-radius: 16px; border-left: 4px solid #ff6b6b;">
+                                <i class="bi bi-envelope-check" style="font-size: 2.5rem; color: #ff6b6b;"></i>
+                                <h5 class="fw-bold mt-3 mb-2" style="color: #ff6b6b;">Email Confirmation</h5>
+                                <p class="text-muted mb-0 small">A confirmation email has been sent to your registered email address</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-4 h-100 text-center" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%); border-radius: 16px; border-left: 4px solid #10b981;">
+                                <i class="bi bi-box-seam" style="font-size: 2.5rem; color: #10b981;"></i>
+                                <h5 class="fw-bold mt-3 mb-2" style="color: #10b981;">Order Processing</h5>
+                                <p class="text-muted mb-0 small">Your order is being processed and will be shipped soon</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <a asp-area="Customer" asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-lg w-100 d-flex align-items-center justify-content-center" style="border-radius: 12px; height: 56px;">
+                                <i class="bi bi-arrow-left me-2"></i>Continue Shopping
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a asp-area="Admin" asp-controller="Order" asp-action="Details" asp-route-orderId="@Model" class="btn btn-lg w-100 text-white d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3); height: 56px;">
+                                <i class="bi bi-receipt me-2"></i>View Order Details
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Additional Info -->
+                    <div class="mt-5 pt-4 border-top text-center">
+                        <p class="text-muted mb-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Need help with your order?
+                        </p>
+                        <p class="text-muted small mb-0">
+                            Contact our support team or check your order status in the orders section
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Decorative Image -->
+            <div class="text-center mt-5">
+                <img src="~/images/lawn_leaf.jpg" alt="Success" class="img-fluid" style="max-width: 400px; opacity: 0.7; border-radius: 16px;" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        @@keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .success-icon {
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+    </style>
+} 

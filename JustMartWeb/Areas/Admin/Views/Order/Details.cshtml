@@ -196,10 +196,27 @@
                                     <span class="fw-semibold">@Model.OrderHeader.PaymentDueDate.ToShortDateString()</span>
                                 </div>
                             } else {
-                                <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
                                     <small class="text-muted">Payment Date</small>
                                     <span class="fw-semibold">@Model.OrderHeader.PaymentDate.ToShortDateString()</span>
                                 </div>
+                                @if (!string.IsNullOrEmpty(Model.OrderHeader.PaymentIntentId)) {
+                                    <div class="mt-2 pt-2 border-top">
+                                        <small class="text-muted d-block mb-1">Transaction ID</small>
+                                        <span class="fw-semibold text-break" style="font-size: 0.85rem; color: #10b981;">
+                                            <i class="bi bi-check-circle-fill me-1"></i>@Model.OrderHeader.PaymentIntentId
+                                        </span>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.OrderHeader.SessionId) && Model.OrderHeader.SessionId.Contains("|")) {
+                                    var paymentMethod = Model.OrderHeader.SessionId.Split('|')[1];
+                                    <div class="mt-2 pt-2 border-top">
+                                        <small class="text-muted d-block mb-1">Payment Method</small>
+                                        <span class="fw-semibold" style="font-size: 0.85rem; color: #6366f1;">
+                                            <i class="bi bi-credit-card me-1"></i>@paymentMethod
+                                        </span>
+                                    </div>
+                                }
                             }
                         </div>
 
