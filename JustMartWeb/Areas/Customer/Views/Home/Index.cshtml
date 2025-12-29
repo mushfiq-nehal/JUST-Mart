@@ -1,80 +1,20 @@
 ﻿@model IEnumerable<Product>
 
-<!-- Hero Section with Animated Background -->
-<section class="hero-section position-relative overflow-hidden">
-    <div class="hero-bg-animation"></div>
-    <div class="container py-5">
-        <div class="row align-items-center min-vh-50">
-            <div class="col-lg-6" data-aos="fade-right">
-                <div class="hero-badge mb-3">
-                    <span class="badge-icon">🎉</span>
-                    <span class="badge-text">Special Offer for JUSTIANS</span>
-                </div>
-                <h1 class="hero-title mb-4">
-                    Get <span class="highlight-text">20% OFF</span><br/>
-                    On Your First Order
-                </h1>
-                <p class="hero-subtitle mb-4">
-                    Discover premium products at unbeatable prices.<br/>
-                    Use code <span class="promo-code">JUSTIAN</span> at checkout
-                </p>
-                <div class="hero-buttons">
-                    <a href="#products" class="btn btn-primary btn-lg me-3">
-                        <span>Start Shopping</span>
-                        <i class="bi bi-arrow-right ms-2"></i>
-                    </a>
-                    <a href="#" class="btn btn-outline-dark btn-lg">
-                        <span>Learn More</span>
-                    </a>
-                </div>
-                <div class="hero-stats mt-5">
-                    <div class="stat-item">
-                        <h3>10K+</h3>
-                        <p>Happy Customers</p>
-                    </div>
-                    <div class="stat-item">
-                        <h3>500+</h3>
-                        <p>Premium Products</p>
-                    </div>
-                    <div class="stat-item">
-                        <h3>4.9★</h3>
-                        <p>Average Rating</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6" data-aos="fade-left">
-                <div class="hero-image-container">
-                    <div class="floating-card card-1">
-                        <i class="bi bi-lightning-charge-fill"></i>
-                        <span>Fast Delivery</span>
-                    </div>
-                    <div class="floating-card card-2">
-                        <i class="bi bi-shield-check"></i>
-                        <span>Secure Payment</span>
-                    </div>
-                    <div class="floating-card card-3">
-                        <i class="bi bi-headset"></i>
-                        <span>24/7 Support</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="hero-wave">
-        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 0L60 10C120 20 240 40 360 46.7C480 53 600 47 720 43.3C840 40 960 40 1080 46.7C1200 53 1320 67 1380 73.3L1440 80V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0V0Z" fill="white"/>
-        </svg>
-    </div>
+<!-- Hero Banner -->
+<section class="hero-banner">
+    <img src="~/banner/Website banner.png" alt="JUST Mart Banner" class="img-fluid w-100" />
 </section>
 
 <!-- Categories Section -->
-<section class="py-5" id="products">
+<section class="py-4" id="products">
     <div class="container">
-        <div class="section-header text-center mb-5" data-aos="fade-up">
-            <h2 class="section-title">Browse by Category</h2>
-            <p class="section-subtitle">Find exactly what you're looking for</p>
+        <div class="d-flex justify-content-between align-items-center mb-3" data-aos="fade-up">
+            <div>
+                <h5 class="fw-bold mb-0">Shop by Category</h5>
+            </div>
         </div>
-        <div class="categories-grid">
+        <div class="categories-scroll-container">
+            <div class="categories-scroll">
             @{
                 var categories = ViewBag.Categories as List<JustMart.Models.Category>;
                 var categoryIcons = new Dictionary<string, string> {
@@ -90,12 +30,14 @@
             }
             
             @* Show All Products card *@
-            <a asp-action="Index" asp-controller="Home" asp-area="Customer" class="category-card @(ViewBag.SelectedCategoryId == null ? "active" : "")" data-aos="zoom-in" data-aos-delay="@delay" style="text-decoration: none; color: inherit;">
-                <div class="category-icon">
-                    <i class="bi bi-grid"></i>
+            <a asp-action="Index" asp-controller="Home" asp-area="Customer" class="category-pill @(ViewBag.SelectedCategoryId == null ? "active" : "")" style="text-decoration: none;">
+                <div class="category-pill-icon">
+                    <i class="bi bi-grid-fill"></i>
                 </div>
-                <h4>All Products</h4>
-                <p>@Model.Count() items</p>
+                <div class="category-pill-content">
+                    <h6 class="mb-0">All</h6>
+                    <small class="text-muted">@Model.Count()</small>
+                </div>
             </a>
             
             @if (categories != null)
@@ -108,24 +50,27 @@
                     var isActive = ViewBag.SelectedCategoryId == category.Id ? "active" : "";
                     
                     <a asp-action="Index" asp-controller="Home" asp-area="Customer" asp-route-categoryId="@category.Id" 
-                       class="category-card @isActive" data-aos="zoom-in" data-aos-delay="@delay" style="text-decoration: none; color: inherit;">
-                        <div class="category-icon">
+                       class="category-pill @isActive" style="text-decoration: none;">
+                        <div class="category-pill-icon">
                             <i class="bi @iconClass"></i>
                         </div>
-                        <h4>@category.Name</h4>
-                        <p>@productCount items</p>
+                        <div class="category-pill-content">
+                            <h6 class="mb-0">@category.Name</h6>
+                            <small class="text-muted">@productCount</small>
+                        </div>
                     </a>
                 }
             }
+            </div>
         </div>
     </div>
 </section>
 
 <!-- Products Section -->
-<section class="py-5 bg-light">
+<section class="py-5">
     <div class="container">
         <div class="section-header d-flex justify-content-between align-items-center mb-5" data-aos="fade-up">
-            <div>
+            <div class="section-header-content">
                 @{
                     var selectedCategoryId = ViewBag.SelectedCategoryId as int?;
                     var categoriesList = ViewBag.Categories as List<JustMart.Models.Category>;
@@ -134,7 +79,6 @@
                         : null;
                 }
                 <h2 class="section-title mb-2">@(selectedCategory != null ? selectedCategory.Name + " Products" : "Featured Products")</h2>
-                <p class="section-subtitle mb-0">@(selectedCategory != null ? "Browse our " + selectedCategory.Name.ToLower() + " collection" : "Handpicked items just for you")</p>
             </div>
             <div class="filter-controls">
                 <button class="filter-btn active" data-filter="all">All</button>

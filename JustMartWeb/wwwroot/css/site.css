@@ -191,27 +191,48 @@ body {
 }
 
 /* ============================================
-   HERO SECTION
+   HERO BANNER SECTION
    ============================================ */
 
+.hero-banner {
+    width: 100%;
+    overflow: hidden;
+}
+
+.hero-banner img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* Old hero section styles - keeping for reference but not used */
 .hero-section {
-    background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%);
+    background: url('/banner/Website banner.png') center center no-repeat;
+    background-size: cover;
     color: white;
     padding: 80px 0 120px;
     position: relative;
     overflow: hidden;
 }
 
-.hero-bg-animation {
+.hero-section::before {
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
-        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-    animation: pulse 8s ease-in-out infinite;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+}
+
+.hero-section > * {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-bg-animation {
+    display: none;
 }
 
 @keyframes pulse {
@@ -433,88 +454,146 @@ body {
     margin-bottom: 3rem;
 }
 
+.section-header-content {
+    margin: 0;
+    padding: 0;
+}
+
+.section-header-content h2,
+.section-header-content p {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    text-indent: 0 !important;
+}
+
 .section-title {
     font-size: 2.5rem;
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 0.5rem;
     position: relative;
-    display: inline-block;
+    margin-left: 0;
+    padding-left: 0;
 }
 
 .section-subtitle {
     font-size: 1.125rem;
     color: var(--text-secondary);
+    margin: 0;
+    padding: 0;
+    margin-left: 0;
+    padding-left: 0;
+    text-indent: 0;
 }
 
 /* ============================================
    CATEGORIES GRID
    ============================================ */
 
-.categories-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 3rem;
+/* Horizontal scrollable categories */
+.categories-scroll-container {
+    position: relative;
+    margin-bottom: 2rem;
 }
 
-.category-card {
-    background: white;
-    border-radius: var(--radius-xl);
-    padding: 2rem;
-    text-align: center;
-    transition: all var(--transition-base);
-    cursor: pointer;
-    border: 2px solid var(--border-color);
-}
-
-.category-card:hover {
-    transform: translateY(-10px);
-    box-shadow: var(--shadow-xl);
-    border-color: var(--primary-color);
-}
-
-.category-card.active {
-    border-color: var(--primary-color);
-    background: linear-gradient(135deg, rgba(255, 107, 107, 0.05), rgba(255, 107, 107, 0.1));
-    box-shadow: var(--shadow-lg);
-}
-
-.category-card.active .category-icon {
-    transform: scale(1.05);
-}
-
-.category-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 1.5rem;
-    background: var(--gradient-primary);
-    border-radius: var(--radius-full);
+.categories-scroll {
     display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.5rem 0;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 107, 107, 0.3) transparent;
+}
+
+.categories-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.categories-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.categories-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 107, 0.3);
+    border-radius: 10px;
+}
+
+.categories-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 107, 107, 0.5);
+}
+
+/* Compact pill-style category cards */
+.category-pill {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    transition: all var(--transition-base);
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    flex-shrink: 0;
+    white-space: nowrap;
+    min-width: 220px;
+    max-width: 220px;
 }
 
-.category-card:hover .category-icon {
-    transform: scale(1.1) rotate(5deg);
+.category-pill:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
 }
 
-.category-icon i {
-    font-size: 2rem;
+.category-pill.active {
+    background: var(--gradient-primary);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
+}
+
+.category-pill.active .category-pill-icon {
+    background: rgba(255, 255, 255, 0.3);
     color: white;
 }
 
-.category-card h4 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
+.category-pill.active h6,
+.category-pill.active small {
+    color: white !important;
 }
 
-.category-card p {
-    color: var(--text-secondary);
-    margin: 0;
+.category-pill-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(250, 82, 82, 0.15));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.category-pill-icon i {
+    font-size: 1.25rem;
+    color: var(--primary-color);
+}
+
+.category-pill-content h6 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.category-pill-content small {
+    font-size: 0.75rem;
+    color: #718096;
+    white-space: nowrap;
 }
 
 /* ============================================
