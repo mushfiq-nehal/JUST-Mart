@@ -75,34 +75,48 @@
             <p class="section-subtitle">Find exactly what you're looking for</p>
         </div>
         <div class="categories-grid">
-            <div class="category-card" data-aos="zoom-in" data-aos-delay="100">
+            @{
+                var categories = ViewBag.Categories as List<JustMart.Models.Category>;
+                var categoryIcons = new Dictionary<string, string> {
+                    { "Action", "bi-lightning-charge" },
+                    { "SciFi", "bi-rocket" },
+                    { "History", "bi-book" },
+                    { "Fashion", "bi-bag" },
+                    { "Hand Crafted", "bi-palette" },
+                    { "Food", "bi-basket" },
+                    { "Gadgets", "bi-cpu" }
+                };
+                int delay = 100;
+            }
+            
+            @* Show All Products card *@
+            <a asp-action="Index" asp-controller="Home" asp-area="Customer" class="category-card @(ViewBag.SelectedCategoryId == null ? "active" : "")" data-aos="zoom-in" data-aos-delay="@delay" style="text-decoration: none; color: inherit;">
                 <div class="category-icon">
-                    <i class="bi bi-bag"></i>
+                    <i class="bi bi-grid"></i>
                 </div>
-                <h4>Fashion</h4>
-                <p>150+ items</p>
-            </div>
-            <div class="category-card" data-aos="zoom-in" data-aos-delay="200">
-                <div class="category-icon">
-                    <i class="bi bi-palette"></i>
-                </div>
-                <h4>Hand Crafted</h4>
-                <p>230+ items</p>
-            </div>
-            <div class="category-card" data-aos="zoom-in" data-aos-delay="300">
-                <div class="category-icon">
-                    <i class="bi bi-basket"></i>
-                </div>
-                <h4>Food</h4>
-                <p>120+ items</p>
-            </div>
-            <div class="category-card" data-aos="zoom-in" data-aos-delay="400">
-                <div class="category-icon">
-                    <i class="bi bi-cpu"></i>
-                </div>
-                <h4>Gadgets</h4>
-                <p>80+ items</p>
-            </div>
+                <h4>All Products</h4>
+                <p>@Model.Count() items</p>
+            </a>
+            
+            @if (categories != null)
+            {
+                @foreach (var category in categories)
+                {
+                    delay += 100;
+                    var productCount = Model.Count(p => p.CategoryId == category.Id);
+                    var iconClass = categoryIcons.ContainsKey(category.Name) ? categoryIcons[category.Name] : "bi-tag";
+                    var isActive = ViewBag.SelectedCategoryId == category.Id ? "active" : "";
+                    
+                    <a asp-action="Index" asp-controller="Home" asp-area="Customer" asp-route-categoryId="@category.Id" 
+                       class="category-card @isActive" data-aos="zoom-in" data-aos-delay="@delay" style="text-decoration: none; color: inherit;">
+                        <div class="category-icon">
+                            <i class="bi @iconClass"></i>
+                        </div>
+                        <h4>@category.Name</h4>
+                        <p>@productCount items</p>
+                    </a>
+                }
+            }
         </div>
     </div>
 </section>
@@ -112,8 +126,15 @@
     <div class="container">
         <div class="section-header d-flex justify-content-between align-items-center mb-5" data-aos="fade-up">
             <div>
-                <h2 class="section-title mb-2">Featured Products</h2>
-                <p class="section-subtitle mb-0">Handpicked items just for you</p>
+                @{
+                    var selectedCategoryId = ViewBag.SelectedCategoryId as int?;
+                    var categoriesList = ViewBag.Categories as List<JustMart.Models.Category>;
+                    var selectedCategory = selectedCategoryId.HasValue && categoriesList != null 
+                        ? categoriesList.FirstOrDefault(c => c.Id == selectedCategoryId.Value) 
+                        : null;
+                }
+                <h2 class="section-title mb-2">@(selectedCategory != null ? selectedCategory.Name + " Products" : "Featured Products")</h2>
+                <p class="section-subtitle mb-0">@(selectedCategory != null ? "Browse our " + selectedCategory.Name.ToLower() + " collection" : "Handpicked items just for you")</p>
             </div>
             <div class="filter-controls">
                 <button class="filter-btn active" data-filter="all">All</button>

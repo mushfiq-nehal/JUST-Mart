@@ -474,6 +474,16 @@ body {
     border-color: var(--primary-color);
 }
 
+.category-card.active {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.05), rgba(255, 107, 107, 0.1));
+    box-shadow: var(--shadow-lg);
+}
+
+.category-card.active .category-icon {
+    transform: scale(1.05);
+}
+
 .category-icon {
     width: 80px;
     height: 80px;

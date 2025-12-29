@@ -1,0 +1,41 @@
+@model IEnumerable<Coupon>
+
+@{
+    ViewData["Title"] = "Coupon List";
+}
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Coupon List</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <div class="row pb-3">
+            <div class="col-6">
+            </div>
+            <div class="col-6 text-end">
+                <a asp-controller="Coupon" asp-action="Create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Create New Coupon
+                </a>
+            </div>
+        </div>
+        <table id="tblData" class="table table-bordered table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Coupon Code</th>
+                    <th>Discount %</th>
+                    <th>Status</th>
+                    <th>Created Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/coupon.js"></script>
+}

@@ -95,6 +95,16 @@ namespace JustMartWeb.Areas.Customer.Controllers {
 				ShoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
 			}
 
+            // Apply coupon discount if provided
+            if (!string.IsNullOrWhiteSpace(ShoppingCartVM.OrderHeader.CouponCode)) {
+                var coupon = _unitOfWork.Coupon.GetByCode(ShoppingCartVM.OrderHeader.CouponCode);
+                if (coupon != null && coupon.IsActive) {
+                    double discountAmount = (ShoppingCartVM.OrderHeader.OrderTotal * coupon.DiscountPercent) / 100;
+                    ShoppingCartVM.OrderHeader.CouponDiscount = Math.Round(discountAmount, 2);
+                    ShoppingCartVM.OrderHeader.OrderTotal -= ShoppingCartVM.OrderHeader.CouponDiscount;
+                }
+            }
+
             if (applicationUser.CompanyId.GetValueOrDefault() == 0) {
 				//it is a regular customer 
 				ShoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
@@ -422,6 +432,33 @@ namespace JustMartWeb.Areas.Customer.Controllers {
               .GetAll(u => u.ApplicationUserId == cartFromDb.ApplicationUserId).Count() - 1);
             _unitOfWork.Save();
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public IActionResult ApplyCoupon(string couponCode, double orderTotal) {
+            if (string.IsNullOrWhiteSpace(couponCode)) {
+                return Json(new { success = false, message = "Please enter a coupon code" });
+            }
+
+            var coupon = _unitOfWork.Coupon.GetByCode(couponCode.ToUpper());
+            
+            if (coupon == null) {
+                return Json(new { success = false, message = "Invalid coupon code" });
+            }
+
+            if (!coupon.IsActive) {
+                return Json(new { success = false, message = "This coupon is no longer active" });
+            }
+
+            // Calculate discount amount
+            double discountAmount = (orderTotal * coupon.DiscountPercent) / 100;
+            
+            return Json(new { 
+                success = true, 
+                message = $"Coupon applied! {coupon.DiscountPercent}% discount",
+                discountAmount = Math.Round(discountAmount, 2),
+                discountPercent = coupon.DiscountPercent
+            });
         }
 
 

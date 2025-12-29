@@ -45,6 +45,8 @@ namespace JustMart.Models {
         [Required]
         public string Name { get; set; }
 
+        public string? CouponCode { get; set; }
+        public double CouponDiscount { get; set; } = 0;
 
     }
 }

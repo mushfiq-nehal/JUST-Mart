@@ -21,10 +21,25 @@ namespace JustMartWeb.Areas.Customer.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int? categoryId)
         {
+            // Get all categories for the category cards
+            var categories = _unitOfWork.Category.GetAll().ToList();
+            ViewBag.Categories = categories;
+            ViewBag.SelectedCategoryId = categoryId;
             
-            IEnumerable<Product> productList = _unitOfWork.Product.GetAll(includeProperties: "Category,ProductImages");
+            // Filter products by category if specified
+            IEnumerable<Product> productList;
+            if (categoryId.HasValue)
+            {
+                productList = _unitOfWork.Product.GetAll(
+                    u => u.CategoryId == categoryId.Value,
+                    includeProperties: "Category,ProductImages");
+            }
+            else
+            {
+                productList = _unitOfWork.Product.GetAll(includeProperties: "Category,ProductImages");
+            }
             
             // Check if user is logged in and is a company user
             if (User.Identity.IsAuthenticated)

@@ -19,6 +19,7 @@ namespace JustMart.DataAccess.Repository
         public IOrderHeaderRepository OrderHeader { get; private set; }
         public IOrderDetailRepository OrderDetail { get; private set; }
         public IProductImageRepository ProductImage { get; private set; }
+        public ICouponRepository Coupon { get; private set; }
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
@@ -29,7 +30,8 @@ namespace JustMart.DataAccess.Repository
             Product = new ProductRepository(_db);
             Company = new CompanyRepository(_db);   
             OrderHeader = new OrderHeaderRepository(_db);
-            OrderDetail = new OrderDetailRepository(_db);   
+            OrderDetail = new OrderDetailRepository(_db);
+            Coupon = new CouponRepository(_db);
         }
 
         public void Save()
