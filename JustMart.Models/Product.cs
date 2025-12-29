@@ -23,23 +23,27 @@ namespace JustMart.Models
         public string Author { get; set; }
         [Required]
         [Display(Name = "List Price")]
-        [Range(1, 1000)]
+        [Range(1, 100000)]
         public double ListPrice { get; set; }
 
+        [Display(Name = "Discount Price (Regular Users)")]
+        [Range(0, 100000)]
+        public double DiscountPrice { get; set; }
+
         [Required]
-        [Display(Name = "Price for 1-50")]
-        [Range(1, 1000)]
+        [Display(Name = "Bulk Price (1-50)")]
+        [Range(1, 100000)]
         public double Price { get; set; }
 
 
         [Required]
-        [Display(Name = "Price for 50+")]
-        [Range(1, 1000)]
+        [Display(Name = "Bulk Price (50+)")]
+        [Range(1, 100000)]
         public double Price50 { get; set; }
 
         [Required]
-        [Display(Name = "Price for 100+")]
-        [Range(1, 1000)]
+        [Display(Name = "Bulk Price (100+)")]
+        [Range(1, 100000)]
         public double Price100 { get; set; }
 
         public int CategoryId { get; set; }

@@ -61,6 +61,12 @@ namespace JustMartWeb.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Auto-set DiscountPrice to ListPrice if not provided
+                if (productVM.Product.DiscountPrice == 0)
+                {
+                    productVM.Product.DiscountPrice = productVM.Product.ListPrice;
+                }
+
                 if (productVM.Product.Id == 0) {
                     _unitOfWork.Product.Add(productVM.Product);
                 }

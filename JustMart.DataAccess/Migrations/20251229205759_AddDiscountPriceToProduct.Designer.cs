@@ -4,6 +4,7 @@ using JustMart.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JustMart.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251229205759_AddDiscountPriceToProduct")]
+    partial class AddDiscountPriceToProduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -287,7 +290,7 @@ namespace JustMart.DataAccess.Migrations
                             Author = "Billy Spark",
                             CategoryId = 1,
                             Description = "Praesent vitae sodales libero. Praesent molestie orci augue, vitae euismod velit sollicitudin ac. Praesent vestibulum facilisis nibh ut ultricies.\r\n\r\nNunc malesuada viverra ipsum sit amet tincidunt. ",
-                            DiscountPrice = 90.0,
+                            DiscountPrice = 0.0,
                             ISBN = "SWD9999001",
                             ListPrice = 99.0,
                             Price = 90.0,
@@ -301,7 +304,7 @@ namespace JustMart.DataAccess.Migrations
                             Author = "Nancy Hoover",
                             CategoryId = 1,
                             Description = "Praesent vitae sodales libero. Praesent molestie orci augue, vitae euismod velit sollicitudin ac. Praesent vestibulum facilisis nibh ut ultricies.\r\n\r\nNunc malesuada viverra ipsum sit amet tincidunt. ",
-                            DiscountPrice = 30.0,
+                            DiscountPrice = 0.0,
                             ISBN = "CAW777777701",
                             ListPrice = 40.0,
                             Price = 30.0,
@@ -315,7 +318,7 @@ namespace JustMart.DataAccess.Migrations
                             Author = "Julian Button",
                             CategoryId = 1,
                             Description = "Praesent vitae sodales libero. Praesent molestie orci augue, vitae euismod velit sollicitudin ac. Praesent vestibulum facilisis nibh ut ultricies.\r\n\r\nNunc malesuada viverra ipsum sit amet tincidunt. ",
-                            DiscountPrice = 50.0,
+                            DiscountPrice = 0.0,
                             ISBN = "RITO5555501",
                             ListPrice = 55.0,
                             Price = 50.0,
@@ -329,7 +332,7 @@ namespace JustMart.DataAccess.Migrations
                             Author = "Abby Muscles",
                             CategoryId = 2,
                             Description = "Praesent vitae sodales libero. Praesent molestie orci augue, vitae euismod velit sollicitudin ac. Praesent vestibulum facilisis nibh ut ultricies.\r\n\r\nNunc malesuada viverra ipsum sit amet tincidunt. ",
-                            DiscountPrice = 65.0,
+                            DiscountPrice = 0.0,
                             ISBN = "WS3333333301",
                             ListPrice = 70.0,
                             Price = 65.0,
@@ -343,7 +346,7 @@ namespace JustMart.DataAccess.Migrations
                             Author = "Ron Parker",
                             CategoryId = 2,
                             Description = "Praesent vitae sodales libero. Praesent molestie orci augue, vitae euismod velit sollicitudin ac. Praesent vestibulum facilisis nibh ut ultricies.\r\n\r\nNunc malesuada viverra ipsum sit amet tincidunt. ",
-                            DiscountPrice = 27.0,
+                            DiscountPrice = 0.0,
                             ISBN = "SOTJ1111111101",
                             ListPrice = 30.0,
                             Price = 27.0,
@@ -357,7 +360,7 @@ namespace JustMart.DataAccess.Migrations
                             Author = "Laura Phantom",
                             CategoryId = 3,
                             Description = "Praesent vitae sodales libero. Praesent molestie orci augue, vitae euismod velit sollicitudin ac. Praesent vestibulum facilisis nibh ut ultricies.\r\n\r\nNunc malesuada viverra ipsum sit amet tincidunt. ",
-                            DiscountPrice = 23.0,
+                            DiscountPrice = 0.0,
                             ISBN = "FOT000000001",
                             ListPrice = 25.0,
                             Price = 23.0,

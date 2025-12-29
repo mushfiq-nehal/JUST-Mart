@@ -30,6 +30,7 @@ namespace JustMart.DataAccess.Repository
                 objFromDb.Price = obj.Price;
                 objFromDb.Price50 = obj.Price50;
                 objFromDb.ListPrice = obj.ListPrice;
+                objFromDb.DiscountPrice = obj.DiscountPrice;
                 objFromDb.Price100 = obj.Price100;
                 objFromDb.Description = obj.Description;
                 objFromDb.CategoryId = obj.CategoryId;

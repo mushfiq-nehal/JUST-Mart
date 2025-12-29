@@ -25,6 +25,20 @@ namespace JustMartWeb.Areas.Customer.Controllers
         {
             
             IEnumerable<Product> productList = _unitOfWork.Product.GetAll(includeProperties: "Category,ProductImages");
+            
+            // Check if user is logged in and is a company user
+            if (User.Identity.IsAuthenticated)
+            {
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var user = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
+                ViewBag.IsCompanyUser = user?.CompanyId != null && user.CompanyId > 0;
+            }
+            else
+            {
+                ViewBag.IsCompanyUser = false;
+            }
+            
             return View(productList);
         }
 
@@ -35,6 +49,20 @@ namespace JustMartWeb.Areas.Customer.Controllers
                 Count = 1,
                 ProductId = productId
             };
+            
+            // Check if user is logged in and is a company user
+            if (User.Identity.IsAuthenticated)
+            {
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var user = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
+                ViewBag.IsCompanyUser = user?.CompanyId != null && user.CompanyId > 0;
+            }
+            else
+            {
+                ViewBag.IsCompanyUser = false;
+            }
+            
             return View(cart);
         }
 

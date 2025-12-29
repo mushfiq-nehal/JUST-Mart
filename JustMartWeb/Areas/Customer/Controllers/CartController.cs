@@ -181,37 +181,30 @@ namespace JustMartWeb.Areas.Customer.Controllers {
 
 			OrderHeader orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == id, includeProperties: "ApplicationUser");
             
-            if (orderHeader.PaymentStatus != SD.PaymentStatusDelayedPayment)
+            // Check if cart has already been cleared for this order
+            var existingCarts = _unitOfWork.ShoppingCart
+                .GetAll(u => u.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
+            
+            if (existingCarts.Any())
             {
-                // Payment should be validated in PaymentSuccess callback
-                // Only clear cart if payment was successful
-                if (orderHeader.PaymentStatus == SD.PaymentStatusApproved)
-                {
-                    // Clear shopping cart session but keep user logged in
-                    HttpContext.Session.SetInt32(SD.SessionCart, 0);
-
-                    _emailSender.SendEmailAsync(orderHeader.ApplicationUser.Email, "New Order - JUST Mart",
-                        $"<p>Your order has been placed successfully!</p><p>Order ID: {orderHeader.Id}</p><p>Total Amount: ৳{orderHeader.OrderTotal:F2}</p>");
-
-                    List<ShoppingCart> shoppingCarts = _unitOfWork.ShoppingCart
-                        .GetAll(u => u.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
-
-                    _unitOfWork.ShoppingCart.RemoveRange(shoppingCarts);
-                    _unitOfWork.Save();
-                }
+                // Clear shopping cart - order has been placed
+                HttpContext.Session.SetInt32(SD.SessionCart, 0);
+                _unitOfWork.ShoppingCart.RemoveRange(existingCarts);
+                _unitOfWork.Save();
             }
-            else
+
+            // Send confirmation email
+            if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
             {
                 // Company user - delayed payment
-                HttpContext.Session.SetInt32(SD.SessionCart, 0);
                 _emailSender.SendEmailAsync(orderHeader.ApplicationUser.Email, "New Order - JUST Mart",
                     $"<p>New Order Created - {orderHeader.Id}</p>");
-
-                List<ShoppingCart> shoppingCarts = _unitOfWork.ShoppingCart
-                    .GetAll(u => u.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
-
-                _unitOfWork.ShoppingCart.RemoveRange(shoppingCarts);
-                _unitOfWork.Save();
+            }
+            else if (orderHeader.PaymentStatus == SD.PaymentStatusApproved || orderHeader.PaymentStatus == SD.PaymentStatusPending)
+            {
+                // Regular customer
+                _emailSender.SendEmailAsync(orderHeader.ApplicationUser.Email, "New Order - JUST Mart",
+                    $"<p>Your order has been placed successfully!</p><p>Order ID: {orderHeader.Id}</p><p>Total Amount: ৳{orderHeader.OrderTotal:F2}</p>");
             }
 
 			return View(id);

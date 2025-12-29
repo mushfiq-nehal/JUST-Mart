@@ -38,11 +38,36 @@
                             <label asp-for="Product.Author" class="ms-2"></label>
                             <span asp-validation-for="Product.Author" class="text-danger"></span>
                         </div>
+
+                        <!-- Regular Pricing Section -->
+                        <div class="mt-4 mb-3">
+                            <h5 class="fw-bold" style="color: #ff6b6b;">
+                                <i class="bi bi-tag me-2"></i>Regular Customer Pricing
+                            </h5>
+                            <small class="text-muted">Pricing for individual customers</small>
+                        </div>
+
                         <div class="form-floating py-2 col-12">
                             <input asp-for="Product.ListPrice" class="form-control border-0 shadow" />
                             <label asp-for="Product.ListPrice" class="ms-2"></label>
                             <span asp-validation-for="Product.ListPrice" class="text-danger"></span>
                         </div>
+
+                        <div class="form-floating py-2 col-12">
+                            <input asp-for="Product.DiscountPrice" class="form-control border-0 shadow" />
+                            <label asp-for="Product.DiscountPrice" class="ms-2"></label>
+                            <span asp-validation-for="Product.DiscountPrice" class="text-danger"></span>
+                            <small class="text-muted ms-2">This price will be shown to regular users</small>
+                        </div>
+
+                        <!-- Bulk Pricing Section -->
+                        <div class="mt-4 mb-3 p-3" style="background: rgba(59, 130, 246, 0.05); border-radius: 12px; border-left: 4px solid #3b82f6;">
+                            <h5 class="fw-bold" style="color: #3b82f6;">
+                                <i class="bi bi-building me-2"></i>Company / Bulk Order Pricing
+                            </h5>
+                            <small class="text-muted">Quantity-based pricing for company accounts</small>
+                        </div>
+
                         <div class="form-floating py-2 col-12">
                             <input asp-for="Product.Price" class="form-control border-0 shadow" />
                             <label asp-for="Product.Price" class="ms-2"></label>
