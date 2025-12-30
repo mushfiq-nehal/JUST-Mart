@@ -1,0 +1,77 @@
+@model IEnumerable<JustMart.Models.Product>
+
+@foreach (var product in Model)
+{
+    var displayPrice = product.Price100;
+    var discount = product.ListPrice > displayPrice ? Math.Round(((product.ListPrice - displayPrice) / product.ListPrice) * 100) : 0;
+    var priceToShow = product.DiscountPrice;
+    
+    <div class="modern-product-card" data-aos="fade-up" data-aos-delay="@((Model.ToList().IndexOf(product) % 4) * 100)">
+        <div class="product-image-wrapper" onclick="showProductDetailsModal(@product.Id)">
+            @if(product.ProductImages!=null && product.ProductImages.Count() > 0) {
+                <img src="@product.ProductImages.FirstOrDefault()!.ImageUrl" alt="@product.Title" class="product-main-image" />
+            }
+            else {
+                <img src="https://placehold.co/400x400/f8f9fa/667eea/png?text=@product.Title" alt="@product.Title" class="product-main-image" />
+            }
+            
+            @if(discount > 0)
+            {
+                <div class="product-badge sale-badge">
+                    <span>-@discount%</span>
+                </div>
+            }
+            
+            <button class="product-wishlist-btn" title="Add to Wishlist" onclick="event.stopPropagation();">
+                <i class="bi bi-heart"></i>
+            </button>
+            
+            <div class="product-hover-overlay">
+                <button class="btn-quick-view" onclick="event.stopPropagation(); showProductDetailsModal(@product.Id);">
+                    <i class="bi bi-eye me-2"></i>Quick View
+                </button>
+            </div>
+        </div>
+        
+        <div class="product-info">
+            <div class="product-category">
+                <i class="bi bi-tag-fill me-1"></i>
+                <span>@product.Category.Name</span>
+            </div>
+            <h3 class="product-title">
+                <a href="javascript:void(0)" onclick="showProductDetailsModal(@product.Id)">@product.Title</a>
+            </h3>
+            <div class="product-rating">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-half"></i>
+                <span class="rating-count">(4.5)</span>
+            </div>
+            <div class="product-footer">
+                <div class="product-price">
+                    <div class="price-container">
+                        <span class="current-price">৳@priceToShow.ToString("N2")</span>
+                        @if(product.ListPrice > priceToShow)
+                        {
+                            <span class="old-price">৳@product.ListPrice.ToString("N2")</span>
+                        }
+                    </div>
+                </div>
+                <button class="btn-add-cart" onclick="showProductDetailsModal(@product.Id)" title="Add to Cart">
+                    <i class="bi bi-cart-plus"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="col-12 text-center py-5">
+        <i class="bi bi-search" style="font-size: 4rem; color: #dee2e6;"></i>
+        <h4 class="mt-3 text-muted">No products found</h4>
+        <p class="text-muted">Try adjusting your search or filter criteria</p>
+    </div>
+}

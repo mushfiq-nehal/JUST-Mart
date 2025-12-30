@@ -7,6 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - JUST Mart</title>
+    <link rel="icon" type="image/png" href="~/logo/justmart-logo.png" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="~/JustMartWeb.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
@@ -17,7 +18,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 2px 20px rgba(255, 107, 107, 0.1); border-bottom: 1px solid rgba(255, 107, 107, 0.1);">
+        <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 2px 20px rgba(255, 49, 49, 0.1); border-bottom: 1px solid rgba(255, 49, 49, 0.1);">
             <div class="container">
                 <a class="navbar-brand d-flex align-items-center fw-bold fs-4" asp-area="" asp-controller="Home" asp-action="Index" style="transition: transform 0.3s ease;">
                     <img src="~/logo/justmart-logo.png" alt="JUST Mart Logo" style="height: 55px; width: auto; object-fit: contain;" class="me-2" />
@@ -48,33 +49,33 @@
                                 <ul class="dropdown-menu shadow-lg border-0 mt-2" style="border-radius: 12px; overflow: hidden; animation: dropdownSlide 0.3s ease;">
                                     <li class="nav-item">
                                         <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Admin" asp-controller="Category" asp-action="Index">
-                                            <i class="bi bi-tags me-2" style="color: #ff6b6b;"></i>Categories
+                                            <i class="bi bi-tags me-2" style="color: #ff3131;"></i>Categories
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Admin" asp-controller="Product" asp-action="Index">
-                                            <i class="bi bi-box me-2" style="color: #ff6b6b;"></i>Products
+                                            <i class="bi bi-box me-2" style="color: #ff3131;"></i>Products
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Admin" asp-controller="Company" asp-action="Index">
-                                            <i class="bi bi-building me-2" style="color: #ff6b6b;"></i>Companies
+                                            <i class="bi bi-building me-2" style="color: #ff3131;"></i>Companies
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Admin" asp-controller="Coupon" asp-action="Index">
-                                            <i class="bi bi-ticket-perforated me-2" style="color: #ff6b6b;"></i>Coupons
+                                            <i class="bi bi-ticket-perforated me-2" style="color: #ff3131;"></i>Coupons
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider my-1"></li>
                                     <li class="nav-item">
                                         <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Identity" asp-page="/Account/Register">
-                                            <i class="bi bi-person-plus me-2" style="color: #ff6b6b;"></i>Create User
+                                            <i class="bi bi-person-plus me-2" style="color: #ff3131;"></i>Create User
                                         </a>
                                     </li>
                                      <li class="nav-item">
                                         <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Admin" asp-controller="User" asp-action="Index">
-                                            <i class="bi bi-people me-2" style="color: #ff6b6b;"></i>Manage Users
+                                            <i class="bi bi-people me-2" style="color: #ff3131;"></i>Manage Users
                                         </a>
                                     </li>
 
@@ -83,9 +84,29 @@
                         }
                     </ul>
                     
+                    <!-- Mobile Search Bar -->
+                    <div class="d-lg-none mb-3">
+                        <div class="input-group">
+                            <input type="text" id="mobileSearchInput" class="form-control" placeholder="Search products..." autocomplete="off" style="border-radius: 12px 0 0 12px; border: 2px solid rgba(255, 49, 49, 0.2); padding: 0.75rem 1rem;">
+                            <button class="btn" type="button" id="mobileSearchBtn" style="border-radius: 0 12px 12px 0; background: linear-gradient(135deg, rgba(255, 49, 49, 0.95) 0%, rgba(230, 32, 32, 0.9) 100%); color: white; border: none; padding: 0 1.25rem;">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Bar -->
+                    <div class="mx-auto d-none d-lg-block" style="max-width: 400px; width: 100%;">
+                        <div class="input-group position-relative">
+                            <input type="text" id="searchInput" class="form-control search-input" placeholder="Search products..." autocomplete="off" style="border-radius: 25px 0 0 25px; border: 2px solid #e9ecef; padding: 0.6rem 1rem;">
+                            <button class="btn btn-search" type="button" id="searchBtn" style="border-radius: 0 25px 25px 0; background: linear-gradient(135deg, rgba(255, 49, 49, 0.9) 0%, rgba(230, 32, 32, 0.85) 100%); color: white; border: none; padding: 0 1.5rem;">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
                     <ul class="navbar-nav ms-auto align-items-center">
                         <li class="nav-item me-3">
-                            <a class="nav-link px-3 py-2 position-relative cart-link" asp-area="Customer" asp-controller="Cart" asp-action="Index" style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); color: white; border-radius: 25px; font-weight: 600; transition: all 0.3s ease;">
+                            <a class="nav-link px-3 py-2 position-relative cart-link" asp-area="Customer" asp-controller="Cart" asp-action="Index" style="background: linear-gradient(135deg, rgba(255, 49, 49, 0.9) 0%, rgba(230, 32, 32, 0.85) 100%); color: white; border-radius: 25px; font-weight: 600; transition: all 0.3s ease;">
                                 <i class="bi bi-cart3 me-1" style="font-size: 1.1rem;"></i>Cart
                                 @await Component.InvokeAsync("ShoppingCart")
                             </a>
@@ -98,7 +119,7 @@
             </div>
         </nav>
     </header>
-    <div style="padding-top: 80px;"></div>
+    <div class="navbar-spacer"></div>
     <div class="container">
         <main role="main" class="pb-3">
             <partial name="_Notification" />
@@ -106,30 +127,285 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted" style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(250, 82, 82, 0.85) 100%); border: none !important;">
-        <div class="container py-3">
-            <div class="row align-items-center">
-                <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
-                    <img src="~/logo/justmart-logo.png" alt="JUST Mart Logo" style="height: 35px; width: auto; object-fit: contain; filter: brightness(0) invert(1);" class="me-3 mb-2" />
-                    <p class="text-white mb-0 d-inline-block">
-                        <span class="opacity-75">Your one-stop shop for amazing products</span>
-                    </p>
+    <!-- Modern E-commerce Footer -->
+    <footer class="modern-footer">
+        <div class="footer-main">
+            <div class="container">
+                <div class="row g-4">
+                    <!-- Company Info -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="footer-widget">
+                            <img src="~/logo/justmart-logo.png" alt="JUST Mart Logo" class="footer-logo mb-3" />
+                            <p class="footer-description">
+                                Your trusted online marketplace for quality products at unbeatable prices. Shop with confidence and convenience.
+                            </p>
+                            <div class="footer-social">
+                                <a href="#" class="social-link" title="Facebook">
+                                    <i class="bi bi-facebook"></i>
+                                </a>
+                                <a href="#" class="social-link" title="Instagram">
+                                    <i class="bi bi-instagram"></i>
+                                </a>
+                                <a href="#" class="social-link" title="Twitter">
+                                    <i class="bi bi-twitter"></i>
+                                </a>
+                                <a href="#" class="social-link" title="YouTube">
+                                    <i class="bi bi-youtube"></i>
+                                </a>
+                                <a href="#" class="social-link" title="LinkedIn">
+                                    <i class="bi bi-linkedin"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="col-lg-2 col-md-6 col-6">
+                        <div class="footer-widget">
+                            <h5 class="footer-title">Quick Links</h5>
+                            <ul class="footer-links">
+                                <li><a asp-area="Customer" asp-controller="Home" asp-action="Index">Home</a></li>
+                                <li><a asp-area="Customer" asp-controller="Home" asp-action="Index">Shop</a></li>
+                                <li><a asp-area="Admin" asp-controller="Order" asp-action="Index">Orders</a></li>
+                                <li><a href="#">About Us</a></li>
+                                <li><a href="#">Contact</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Customer Service -->
+                    <div class="col-lg-2 col-md-6 col-6">
+                        <div class="footer-widget">
+                            <h5 class="footer-title">Customer Care</h5>
+                            <ul class="footer-links">
+                                <li><a href="#">Help Center</a></li>
+                                <li><a href="#">Track Order</a></li>
+                                <li><a href="#">Returns</a></li>
+                                <li><a href="#">Shipping Info</a></li>
+                                <li><a href="#">FAQs</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Contact Info -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="footer-widget">
+                            <h5 class="footer-title">Get In Touch</h5>
+                            <ul class="footer-contact">
+                                <li>
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    <span>123 Main Street, Dhaka, Bangladesh</span>
+                                </li>
+                                <li>
+                                    <i class="bi bi-telephone-fill"></i>
+                                    <span>+880 1234-567890</span>
+                                </li>
+                                <li>
+                                    <i class="bi bi-envelope-fill"></i>
+                                    <span>support@justmart.com</span>
+                                </li>
+                            </ul>
+                            
+                            <!-- Newsletter -->
+                            <div class="newsletter-box mt-3">
+                                <p class="mb-2"><strong>Subscribe to our newsletter</strong></p>
+                                <form class="newsletter-form">
+                                    <div class="input-group">
+                                        <input type="email" class="form-control" placeholder="Your email address" />
+                                        <button class="btn btn-newsletter" type="submit">
+                                            <i class="bi bi-send"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <p class="mb-0 text-white">
-                        Made with <i class="bi bi-heart-fill text-danger"></i> by <strong>Nehal</strong>
-                        <span class="opacity-75 ms-3">&copy; 2025</span>
-                    </p>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        <p class="mb-0">
+                            &copy; 2025 <strong>JustMart</strong>. All rights reserved. Made with <i class="bi bi-heart-fill text-danger"></i> by <strong>Nehal</strong>
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <div class="payment-methods">
+                            <span class="payment-text">We Accept:</span>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" class="payment-icon" />
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" class="payment-icon" />
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo_%282018%29.svg" alt="Amex" class="payment-icon" />
+                            <img src="https://cdn.brandfetch.io/id_4D40okd/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1765213115741" alt="bKash" class="payment-icon" />
+                            <img src="https://cdn.brandfetch.io/idPKXOsXfF/w/900/h/900/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1760965476495" alt="Nagad" class="payment-icon" />
+                            <img src="https://cdn.brandfetch.io/id3q3A-eCg/w/250/h/250/theme/dark/icon.png?c=1bxid64Mup7aczewSAYMX&t=1763925636964" alt="SSL Commerz" class="payment-icon" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </footer>
+
+    <!-- Search Results Modal -->
+    <div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Search Results</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body pt-2" id="searchResults">
+                    <div class="text-center p-5">
+                        <div class="spinner-border" style="color: #ff3131;" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="//cdn.datatables.net/1.13.3/js/jquery.dataTables.min.js" asp-append-version="true"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    
+    <script>
+        // Search functionality
+        let searchModal;
+        document.addEventListener('DOMContentLoaded', function() {
+            searchModal = new bootstrap.Modal(document.getElementById('searchModal'));
+            
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const mobileSearchInput = document.getElementById('mobileSearchInput');
+            const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+            
+            if (searchInput && searchBtn) {
+                // Desktop search on button click
+                searchBtn.addEventListener('click', function() {
+                    performSearch(searchInput.value);
+                });
+                
+                // Desktop search on Enter key
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        performSearch(searchInput.value);
+                    }
+                });
+            }
+            
+            if (mobileSearchInput && mobileSearchBtn) {
+                // Mobile search on button click
+                mobileSearchBtn.addEventListener('click', function() {
+                    performSearch(mobileSearchInput.value);
+                });
+                
+                // Mobile search on Enter key
+                mobileSearchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        performSearch(mobileSearchInput.value);
+                    }
+                });
+            }
+        });
+        
+        function performSearch(inputValue) {
+            const searchTerm = inputValue ? inputValue.trim() : '';
+            
+            if (searchTerm.length < 2) {
+                return;
+            }
+            
+            // Show modal with loading
+            searchModal.show();
+            document.getElementById('searchResults').innerHTML = `
+                <div class="text-center p-5">
+                    <div class="spinner-border" style="color: #ff3131;" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            `;
+            
+            // Fetch search results
+            fetch(`/Customer/Home/SearchProducts?searchTerm=${encodeURIComponent(searchTerm)}`)
+                .then(response => response.json())
+                .then(data => {
+                    displaySearchResults(data, searchTerm);
+                })
+                .catch(error => {
+                    console.error('Search error:', error);
+                    document.getElementById('searchResults').innerHTML = `
+                        <div class="text-center p-5">
+                            <i class="bi bi-exclamation-circle text-danger" style="font-size: 3rem;"></i>
+                            <p class="mt-3 text-muted">Error loading search results</p>
+                        </div>
+                    `;
+                });
+        }
+        
+        function displaySearchResults(products, searchTerm) {
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (!products || products.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="text-center p-5">
+                        <i class="bi bi-search" style="font-size: 3rem; color: #dee2e6;"></i>
+                        <h5 class="mt-3 text-muted">No products found</h5>
+                        <p class="text-muted">Try different keywords</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div class="mb-3 px-2">
+                    <small class="text-muted">Found ${products.length} product(s) for "<strong>${searchTerm}</strong>"</small>
+                </div>
+                <div class="list-group list-group-flush">
+            `;
+            
+            products.forEach(product => {
+                const imageUrl = product.productImages && product.productImages.length > 0 
+                    ? product.productImages[0].imageUrl 
+                    : 'https://placehold.co/80x80';
+                const discount = product.listPrice > product.discountPrice 
+                    ? Math.round(((product.listPrice - product.discountPrice) / product.listPrice) * 100) 
+                    : 0;
+                
+                html += `
+                    <a href="javascript:void(0)" onclick="searchModal.hide(); showProductDetailsModal(${product.id});" class="list-group-item list-group-item-action border-0 p-3" style="cursor: pointer;">
+                        <div class="d-flex align-items-center">
+                            <img src="${imageUrl}" alt="${product.title}" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1 fw-bold">${product.title}</h6>
+                                <p class="mb-1 text-muted small">by ${product.author}</p>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-bold" style="color: #ff3131; font-size: 1.1rem;">৳${product.discountPrice.toFixed(2)}</span>
+                                    ${product.listPrice > product.discountPrice ? `
+                                        <span class="text-decoration-line-through text-muted small">৳${product.listPrice.toFixed(2)}</span>
+                                        <span class="badge bg-danger">${discount}% OFF</span>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-right text-muted"></i>
+                        </div>
+                    </a>
+                `;
+            });
+            
+            html += '</div>';
+            resultsContainer.innerHTML = html;
+        }
+    </script>
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

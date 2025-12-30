@@ -13,6 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add active class to clicked button
             this.classList.add('active');
             
+            // Sync with mobile dropdown
+            const mobileFilterSelect = document.getElementById('mobileFilterSelect');
+            if (mobileFilterSelect) {
+                mobileFilterSelect.value = this.getAttribute('data-filter');
+            }
+            
             // Add smooth animation
             const productsGrid = document.querySelector('.products-grid');
             productsGrid.style.opacity = '0';
@@ -22,6 +28,31 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 200);
         });
     });
+    
+    // Mobile filter dropdown
+    const mobileFilterSelect = document.getElementById('mobileFilterSelect');
+    if (mobileFilterSelect) {
+        mobileFilterSelect.addEventListener('change', function() {
+            const filterValue = this.value;
+            
+            // Update desktop buttons
+            filterBtns.forEach(b => b.classList.remove('active'));
+            const activeBtn = document.querySelector(`.filter-btn[data-filter="${filterValue}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+            
+            // Add smooth animation
+            const productsGrid = document.querySelector('.products-grid');
+            if (productsGrid) {
+                productsGrid.style.opacity = '0';
+                
+                setTimeout(() => {
+                    productsGrid.style.opacity = '1';
+                }, 200);
+            }
+        });
+    }
     
     // Wishlist functionality
     const wishlistBtns = document.querySelectorAll('.wishlist-btn');

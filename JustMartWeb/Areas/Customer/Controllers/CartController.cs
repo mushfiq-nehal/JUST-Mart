@@ -86,6 +86,7 @@ namespace JustMartWeb.Areas.Customer.Controllers {
 
 			ShoppingCartVM.OrderHeader.OrderDate = System.DateTime.Now;
 			ShoppingCartVM.OrderHeader.ApplicationUserId = userId;
+			ShoppingCartVM.OrderHeader.ShippingDate = System.DateTime.Now.AddDays(5); // Estimated shipping 5 days from order
 
 			ApplicationUser applicationUser = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
 
@@ -232,6 +233,9 @@ namespace JustMartWeb.Areas.Customer.Controllers {
 
                 var tranId = Request.Form["tran_id"].ToString();
                 var status = Request.Form["status"].ToString();
+                var bankTranId = Request.Form["bank_tran_id"].ToString();
+                var cardType = Request.Form["card_type"].ToString();
+                var cardBrand = Request.Form["card_brand"].ToString();
                 
                 System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Status from form: {status}\n");
 
@@ -239,10 +243,32 @@ namespace JustMartWeb.Areas.Customer.Controllers {
                 var orderIdStr = tranId.Replace("JUST_", "");
                 if (int.TryParse(orderIdStr, out int orderId))
                 {
-                    // Payment should already be updated via IPN
-                    // Just redirect to confirmation page
                     if (status == "VALID")
                     {
+                        // Update payment information (important for localhost testing since IPN won't be called)
+                        var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderId);
+                        if (orderHeader != null && orderHeader.PaymentStatus != SD.PaymentStatusApproved)
+                        {
+                            orderHeader.PaymentIntentId = bankTranId;
+                            orderHeader.PaymentDate = DateTime.Now;
+                            
+                            // Store payment method info in SessionId
+                            var paymentInfo = $"{cardType} - {cardBrand}";
+                            if (!string.IsNullOrEmpty(cardType) || !string.IsNullOrEmpty(cardBrand))
+                            {
+                                if (string.IsNullOrEmpty(orderHeader.SessionId) || !orderHeader.SessionId.Contains("|"))
+                                {
+                                    orderHeader.SessionId = $"{orderHeader.SessionId}|{paymentInfo}";
+                                }
+                            }
+                            
+                            _unitOfWork.OrderHeader.Update(orderHeader);
+                            _unitOfWork.OrderHeader.UpdateStatus(orderId, SD.StatusApproved, SD.PaymentStatusApproved);
+                            _unitOfWork.Save();
+
+                            System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Payment info updated for Order {orderId}\n");
+                        }
+                        
                         System.IO.File.AppendAllText("payment_log.txt", $"{DateTime.Now}: Redirecting to confirmation for Order {orderId}\n");
                         TempData["success"] = "Payment completed successfully!";
                         return RedirectToAction(nameof(OrderConfirmation), new { id = orderId });

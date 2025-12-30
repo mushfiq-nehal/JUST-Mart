@@ -13,24 +13,59 @@
                 <h5 class="fw-bold mb-0">Shop by Category</h5>
             </div>
         </div>
-        <div class="categories-scroll-container">
+        
+        @{
+            var categories = ViewBag.Categories as List<JustMart.Models.Category>;
+            var categoryIcons = new Dictionary<string, string> {
+                { "Action", "bi-lightning-charge" },
+                { "SciFi", "bi-rocket" },
+                { "History", "bi-book" },
+                { "Fashion", "bi-bag" },
+                { "Hand Crafted", "bi-palette" },
+                { "Food", "bi-basket" },
+                { "Gadgets", "bi-cpu" }
+            };
+            int delay = 100;
+        }
+        
+        <!-- Mobile Category Dropdown -->
+        <div class="category-mobile-dropdown d-md-none mb-3">
+            <select class="form-select category-select" id="mobileCategorySelect">
+                @{
+                    var selectedCatId = ViewBag.SelectedCategoryId as int?;
+                }
+                @if (selectedCatId == null)
+                {
+                    <option value="" selected>All Categories (@Model.Count())</option>
+                }
+                else
+                {
+                    <option value="">All Categories (@Model.Count())</option>
+                }
+                @if (categories != null)
+                {
+                    @foreach (var category in categories)
+                    {
+                        var productCount = Model.Count(p => p.CategoryId == category.Id);
+                        @if (selectedCatId == category.Id)
+                        {
+                            <option value="@category.Id" selected>@category.Name (@productCount)</option>
+                        }
+                        else
+                        {
+                            <option value="@category.Id">@category.Name (@productCount)</option>
+                        }
+                    }
+                }
+            </select>
+        </div>
+        
+        <!-- Desktop Category Pills -->
+        <div class="categories-scroll-container d-none d-md-block">
             <div class="categories-scroll">
-            @{
-                var categories = ViewBag.Categories as List<JustMart.Models.Category>;
-                var categoryIcons = new Dictionary<string, string> {
-                    { "Action", "bi-lightning-charge" },
-                    { "SciFi", "bi-rocket" },
-                    { "History", "bi-book" },
-                    { "Fashion", "bi-bag" },
-                    { "Hand Crafted", "bi-palette" },
-                    { "Food", "bi-basket" },
-                    { "Gadgets", "bi-cpu" }
-                };
-                int delay = 100;
-            }
             
             @* Show All Products card *@
-            <a asp-action="Index" asp-controller="Home" asp-area="Customer" class="category-pill @(ViewBag.SelectedCategoryId == null ? "active" : "")" style="text-decoration: none;">
+            <a href="javascript:void(0)" data-category-id="" class="category-pill category-filter @(ViewBag.SelectedCategoryId == null ? "active" : "")" style="text-decoration: none;">
                 <div class="category-pill-icon">
                     <i class="bi bi-grid-fill"></i>
                 </div>
@@ -49,8 +84,8 @@
                     var iconClass = categoryIcons.ContainsKey(category.Name) ? categoryIcons[category.Name] : "bi-tag";
                     var isActive = ViewBag.SelectedCategoryId == category.Id ? "active" : "";
                     
-                    <a asp-action="Index" asp-controller="Home" asp-area="Customer" asp-route-categoryId="@category.Id" 
-                       class="category-pill @isActive" style="text-decoration: none;">
+                    <a href="javascript:void(0)" data-category-id="@category.Id" 
+                       class="category-pill category-filter @isActive" style="text-decoration: none;">
                         <div class="category-pill-icon">
                             <i class="bi @iconClass"></i>
                         </div>
@@ -77,10 +112,46 @@
                     var selectedCategory = selectedCategoryId.HasValue && categoriesList != null 
                         ? categoriesList.FirstOrDefault(c => c.Id == selectedCategoryId.Value) 
                         : null;
+                    var searchTerm = ViewBag.SearchTerm as string;
+                    
+                    string title = "Featured Products";
+                    if (!string.IsNullOrWhiteSpace(searchTerm))
+                    {
+                        title = $"Search Results for \"{searchTerm}\"";
+                    }
+                    else if (selectedCategory != null)
+                    {
+                        title = selectedCategory.Name + " Products";
+                    }
                 }
-                <h2 class="section-title mb-2">@(selectedCategory != null ? selectedCategory.Name + " Products" : "Featured Products")</h2>
+                <h2 class="section-title mb-2">@title</h2>
+                @if (!string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    <p class="text-muted mb-0">
+                        Found <span id="product-count">@Model.Count()</span> product(s) - 
+                        <a href="javascript:void(0)" id="clear-search" class="text-decoration-none" style="color: #ff3131;">Clear search</a>
+                    </p>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">
+                        Showing <span id="product-count">@Model.Count()</span> product(s)
+                    </p>
+                }
             </div>
-            <div class="filter-controls">
+            
+            <!-- Mobile Filter Dropdown -->
+            <div class="filter-mobile-dropdown d-md-none">
+                <select class="form-select filter-select" id="mobileFilterSelect">
+                    <option value="all" selected>All Products</option>
+                    <option value="new">New Arrivals</option>
+                    <option value="sale">On Sale</option>
+                    <option value="popular">Popular</option>
+                </select>
+            </div>
+            
+            <!-- Desktop Filter Buttons -->
+            <div class="filter-controls d-none d-md-flex">
                 <button class="filter-btn active" data-filter="all">All</button>
                 <button class="filter-btn" data-filter="new">New</button>
                 <button class="filter-btn" data-filter="sale">On Sale</button>
@@ -88,84 +159,8 @@
             </div>
         </div>
 
-        <div class="products-grid">
-            @foreach (var product in Model)
-            {
-                <div class="modern-product-card" data-aos="fade-up" data-aos-delay="@((Model.ToList().IndexOf(product) % 4) * 100)">
-                    <div class="product-image-wrapper">
-                        @if(product.ProductImages!=null && product.ProductImages.Count() > 0) {
-                            <img src="@product.ProductImages.FirstOrDefault().ImageUrl" alt="@product.Title" class="product-main-image" />
-                        }
-                        else {
-                            <img src="https://placehold.co/400x500/f8f9fa/667eea/png?text=@product.Title" alt="@product.Title" class="product-main-image" />
-                        }
-                        
-                        @{
-                            var displayPrice = ViewBag.IsCompanyUser == true ? product.Price100 : product.DiscountPrice;
-                            var discount = product.ListPrice > displayPrice ? Math.Round(((product.ListPrice - displayPrice) / product.ListPrice) * 100) : 0;
-                        }
-                        
-                        @if(discount > 0)
-                        {
-                            <div class="product-badge sale-badge">
-                                <span>-@discount%</span>
-                            </div>
-                        }
-                        
-                        <div class="product-quick-actions">
-                            <button class="quick-action-btn wishlist-btn" title="Add to Wishlist">
-                                <i class="bi bi-heart"></i>
-                            </button>
-                            <button class="quick-action-btn view-btn" title="Quick View">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                            <button class="quick-action-btn compare-btn" title="Compare">
-                                <i class="bi bi-arrow-left-right"></i>
-                            </button>
-                        </div>
-                        
-                        <div class="product-overlay">
-                            <a asp-action="Details" asp-route-productId="@product.Id" class="btn btn-view-details">
-                                <span>View Details</span>
-                                <i class="bi bi-arrow-right ms-2"></i>
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <div class="product-info">
-                        <div class="product-category">
-                            <i class="bi bi-tag-fill me-1"></i>
-                            <span>@product.Category.Name</span>
-                        </div>
-                        <h3 class="product-title">
-                            <a asp-action="Details" asp-route-productId="@product.Id">@product.Title</a>
-                        </h3>
-                        <div class="product-rating">
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-half"></i>
-                            <span class="rating-count">(4.5)</span>
-                        </div>
-                        <div class="product-footer">
-                            <div class="product-price">
-                                @{
-                                    var priceToShow = ViewBag.IsCompanyUser == true ? product.Price100 : product.DiscountPrice;
-                                }
-                                <span class="current-price">@priceToShow.ToString("c")</span>
-                                @if(product.ListPrice > priceToShow)
-                                {
-                                    <span class="old-price">@product.ListPrice.ToString("c")</span>
-                                }
-                            </div>
-                            <a asp-action="Details" asp-route-productId="@product.Id" class="btn-add-cart">
-                                <i class="bi bi-cart-plus"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            }
+        <div class="products-grid" id="products-container">
+            @Html.Partial("_ProductsPartial", Model)
         </div>
     </div>
 </section>
@@ -229,4 +224,357 @@
         easing: 'ease-out-quad',
         once: true
     });
+
+    // AJAX Product Filtering
+    let currentCategoryId = null;
+    let currentSearchTerm = '';
+
+    function loadProducts(categoryId, searchTerm) {
+        // Show loading state
+        const container = document.getElementById('products-container');
+        container.style.opacity = '0.5';
+        container.style.pointerEvents = 'none';
+
+        const url = new URL('@Url.Action("GetProducts", "Home", new { area = "Customer" })', window.location.origin);
+        if (categoryId) url.searchParams.append('categoryId', categoryId);
+        if (searchTerm) url.searchParams.append('searchTerm', searchTerm);
+
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                container.innerHTML = html;
+                container.style.opacity = '1';
+                container.style.pointerEvents = 'auto';
+                
+                // Re-initialize AOS for new elements
+                if (typeof AOS !== 'undefined') {
+                    AOS.refresh();
+                }
+
+                // Update product count
+                const productCards = container.querySelectorAll('.modern-product-card');
+                const countElement = document.getElementById('product-count');
+                if (countElement) {
+                    countElement.textContent = productCards.length;
+                }
+
+                // Update page title
+                updatePageTitle(categoryId, searchTerm);
+            })
+            .catch(error => {
+                console.error('Error loading products:', error);
+                container.style.opacity = '1';
+                container.style.pointerEvents = 'auto';
+            });
+    }
+
+    function updatePageTitle(categoryId, searchTerm) {
+        const titleElement = document.querySelector('.section-title');
+        if (!titleElement) return;
+
+        if (searchTerm) {
+            titleElement.textContent = `Search Results for "${searchTerm}"`;
+        } else if (categoryId) {
+            const activeCategory = document.querySelector(`.category-filter[data-category-id="${categoryId}"]`);
+            if (activeCategory) {
+                const categoryName = activeCategory.querySelector('h6').textContent;
+                titleElement.textContent = `${categoryName} Products`;
+            }
+        } else {
+            titleElement.textContent = 'Featured Products';
+        }
+    }
+
+    // Category filter clicks
+    document.querySelectorAll('.category-filter').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Update active state
+            document.querySelectorAll('.category-filter').forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Get category ID
+            const categoryId = this.getAttribute('data-category-id');
+            currentCategoryId = categoryId || null;
+            
+            // Clear search when filtering by category
+            const searchInput = document.querySelector('input[name="searchTerm"]');
+            if (searchInput) {
+                searchInput.value = '';
+                currentSearchTerm = '';
+            }
+            
+            // Load products
+            loadProducts(currentCategoryId, currentSearchTerm);
+        });
+    });
+
+    // Mobile category dropdown
+    const mobileCategorySelect = document.getElementById('mobileCategorySelect');
+    if (mobileCategorySelect) {
+        mobileCategorySelect.addEventListener('change', function() {
+            const categoryId = this.value;
+            currentCategoryId = categoryId || null;
+            
+            // Clear search when filtering by category
+            const searchInput = document.querySelector('input[name="searchTerm"]');
+            if (searchInput) {
+                searchInput.value = '';
+                currentSearchTerm = '';
+            }
+            
+            // Update desktop pills if they exist
+            document.querySelectorAll('.category-filter').forEach(l => l.classList.remove('active'));
+            const activeDesktopPill = document.querySelector(`.category-filter[data-category-id="${categoryId}"]`);
+            if (activeDesktopPill) {
+                activeDesktopPill.classList.add('active');
+            }
+            
+            // Load products
+            loadProducts(currentCategoryId, currentSearchTerm);
+        });
+    }
+
+    // Search form submission in navbar (from Layout)
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchForms = document.querySelectorAll('.search-form');
+        searchForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const searchInput = this.querySelector('input[name="searchTerm"]');
+                currentSearchTerm = searchInput.value.trim();
+                
+                // Clear category filter
+                currentCategoryId = null;
+                document.querySelectorAll('.category-filter').forEach(l => l.classList.remove('active'));
+                document.querySelector('.category-filter[data-category-id=""]')?.classList.add('active');
+                
+                // Load products
+                loadProducts(currentCategoryId, currentSearchTerm);
+            });
+        });
+
+        // Clear search
+        const clearSearchBtn = document.getElementById('clear-search');
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                currentSearchTerm = '';
+                const searchInput = document.querySelector('input[name="searchTerm"]');
+                if (searchInput) searchInput.value = '';
+                
+                loadProducts(currentCategoryId, currentSearchTerm);
+            });
+        }
+    });
+</script>
+
+<!-- Product Details Modal -->
+<div class="modal fade" id="productDetailsModal" tabindex="-1" aria-labelledby="productDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+            <div id="modalContent">
+                <div class="text-center p-5">
+                    <div class="spinner-border" style="color: #ff3131;" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let productDetailsModal;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalElement = document.getElementById('productDetailsModal');
+        if (modalElement) {
+            productDetailsModal = new bootstrap.Modal(modalElement);
+        }
+    });
+
+    // Make function globally accessible
+    window.showProductDetailsModal = function(productId) {
+        // Ensure modal is initialized
+        if (!productDetailsModal) {
+            const modalElement = document.getElementById('productDetailsModal');
+            if (modalElement) {
+                productDetailsModal = new bootstrap.Modal(modalElement);
+            }
+        }
+        
+        if (!productDetailsModal) {
+            console.error('Modal not found');
+            return;
+        }
+        
+        const modalContent = document.getElementById('modalContent');
+        
+        // Show loading spinner
+        modalContent.innerHTML = `
+            <div class="text-center p-5">
+                <div class="spinner-border" style="color: #ff3131;" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        `;
+        
+        // Show modal
+        productDetailsModal.show();
+        
+        // Load product details
+        fetch(`/Customer/Home/GetProductDetailsModal?productId=${productId}`)
+            .then(response => response.text())
+            .then(html => {
+                modalContent.innerHTML = html;
+                
+                // Handle form submission
+                const form = document.getElementById('addToCartForm');
+                if (form) {
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        const formData = new FormData(form);
+                        const submitBtn = form.querySelector('button[type="submit"]');
+                        const originalBtnText = submitBtn.innerHTML;
+                        
+                        // Show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Adding...';
+                        
+                        fetch('/Customer/Home/Details', {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            },
+                            body: formData
+                        })
+                        .then(response => {
+                            // Handle unauthorized (401) or redirect to login
+                            if (response.status === 401 || response.redirected) {
+                                // User not logged in, redirect to login
+                                window.location.href = response.redirected ? response.url : '/Identity/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.pathname);
+                                return null;
+                            }
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data && data.success) {
+                                // Close modal
+                                productDetailsModal.hide();
+                                
+                                // Show toast notification
+                                const toastHtml = `
+                                    <div class="position-fixed top-0 end-0 p-3" style="z-index: 11000;">
+                                        <div class="toast show border-0 shadow-lg" role="alert" style="min-width: 300px; border-radius: 12px; overflow: hidden;">
+                                            <div class="toast-body p-0">
+                                                <div class="d-flex align-items-center p-3" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                                                    <div class="toast-icon me-3" style="width: 48px; height: 48px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="bi bi-cart-check-fill text-white" style="font-size: 1.5rem;"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="mb-0 text-white fw-bold">Added to Cart!</h6>
+                                                        <p class="mb-0 text-white" style="font-size: 0.875rem; opacity: 0.9;">${data.message}</p>
+                                                    </div>
+                                                    <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="toast" style="opacity: 0.8;"></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                document.body.insertAdjacentHTML('beforeend', toastHtml);
+                                
+                                // Auto hide toast after 3 seconds with fade out
+                                setTimeout(() => {
+                                    const toastContainer = document.querySelector('.position-fixed.top-0.end-0');
+                                    if (toastContainer) {
+                                        toastContainer.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+                                        toastContainer.style.opacity = '0';
+                                        toastContainer.style.transform = 'translateX(100%)';
+                                        setTimeout(() => toastContainer.remove(), 300);
+                                    }
+                                }, 3000);
+                                
+                                // Update cart count in navbar
+                                if (data.cartCount !== undefined) {
+                                    const cartCountBadge = document.getElementById('cart-count-badge');
+                                    if (cartCountBadge) {
+                                        cartCountBadge.textContent = `(${data.cartCount})`;
+                                    }
+                                    
+                                    // Animate the cart icon
+                                    const cartIcon = document.querySelector('.cart-link i');
+                                    if (cartIcon) {
+                                        cartIcon.classList.add('cart-bounce');
+                                        setTimeout(() => cartIcon.classList.remove('cart-bounce'), 500);
+                                    }
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnText;
+                            
+                            // Show error toast
+                            const errorToast = `
+                                <div class="position-fixed top-0 end-0 p-3" style="z-index: 11000;">
+                                    <div class="toast show border-0 shadow-lg" role="alert" style="min-width: 300px; border-radius: 12px; overflow: hidden;">
+                                        <div class="toast-body p-0">
+                                            <div class="d-flex align-items-center p-3" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                                                <div class="toast-icon me-3" style="width: 48px; height: 48px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="bi bi-exclamation-triangle-fill text-white" style="font-size: 1.5rem;"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-0 text-white fw-bold">Error</h6>
+                                                    <p class="mb-0 text-white" style="font-size: 0.875rem; opacity: 0.9;">Unable to add item to cart. Please try again.</p>
+                                                </div>
+                                                <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="toast" style="opacity: 0.8;"></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            document.body.insertAdjacentHTML('beforeend', errorToast);
+                            setTimeout(() => {
+                                const toastContainer = document.querySelector('.position-fixed.top-0.end-0');
+                                if (toastContainer) {
+                                    toastContainer.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+                                    toastContainer.style.opacity = '0';
+                                    toastContainer.style.transform = 'translateX(100%)';
+                                    setTimeout(() => toastContainer.remove(), 300);
+                                }
+                            }, 3000);
+                        });
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error loading product details:', error);
+                modalContent.innerHTML = `
+                    <div class="text-center p-5">
+                        <p class="text-danger">Error loading product details. Please try again.</p>
+                    </div>
+                `;
+            });
+    };
+
+    function updateCartCount() {
+        // Update cart count in navbar if session cart count element exists
+        fetch('/Customer/Home/GetCartCount')
+            .then(response => response.json())
+            .then(data => {
+                const cartBadge = document.querySelector('.cart-count-badge');
+                if (cartBadge && data.count) {
+                    cartBadge.textContent = data.count;
+                }
+            })
+            .catch(error => console.error('Error updating cart count:', error));
+    }
 </script>

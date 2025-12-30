@@ -1,0 +1,162 @@
+@model ShoppingCart
+
+<form method="post" id="addToCartForm">
+    <input hidden asp-for="ProductId" />
+    
+    <div class="modal-header border-0 pb-0">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+
+    <div class="modal-body px-4 pb-4">
+        <div class="row g-4">
+            <!-- Product Images -->
+            <div class="col-lg-5">
+                @if (Model.Product.ProductImages != null && Model.Product.ProductImages.Count > 0) {
+                    <div id="modalProductCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            @foreach(var imageWithIndex in Model.Product.ProductImages.Select((image, index) => new { Image = image, Index = index })) {
+                                <button type="button" data-bs-target="#modalProductCarousel" data-bs-slide-to="@imageWithIndex.Index" 
+                                    class="@(imageWithIndex.Index==0?"active":"")" aria-current="true"></button>
+                            }
+                        </div>
+                        <div class="carousel-inner" style="border-radius: 12px; overflow: hidden;">
+                            @foreach (var imageWithIndex in Model.Product.ProductImages.Select((image, index) => new { Image = image, Index = index })) {
+                                <div class="@(imageWithIndex.Index==0?"carousel-item active":"carousel-item")">
+                                    <img src="@imageWithIndex.Image.ImageUrl" class="d-block w-100" alt="@Model.Product.Title" style="height: 350px; object-fit: cover;">
+                                </div>
+                            }
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#modalProductCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#modalProductCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                } else {
+                    <img src="https://placehold.co/400x350/png" class="img-fluid" style="border-radius: 12px;" alt="Product" />
+                }
+            </div>
+
+            <!-- Product Info -->
+            <div class="col-lg-7">
+                <div class="product-details">
+                    <!-- Category Badge -->
+                    <div class="mb-2">
+                        <span class="badge px-3 py-2" style="background: linear-gradient(135deg, rgba(255, 49, 49, 0.1) 0%, rgba(230, 32, 32, 0.1) 100%); color: #ff3131; border-radius: 20px; font-weight: 600;">
+                            <i class="bi bi-tag me-1"></i>@Model.Product.Category.Name
+                        </span>
+                    </div>
+
+                    <!-- Product Title -->
+                    <h3 class="fw-bold mb-2">@Model.Product.Title</h3>
+                    <p class="text-muted mb-3">by <span class="fw-semibold">@Model.Product.Author</span></p>
+
+                    <!-- Product Code -->
+                    <div class="mb-3 p-2" style="background: #f9fafb; border-radius: 8px;">
+                        <small class="text-muted">Product Code</small>
+                        <p class="mb-0 fw-semibold small">@Model.Product.ISBN</p>
+                    </div>
+
+                    <!-- Pricing -->
+                    <div class="card border-0 shadow-sm mb-3" style="border-radius: 12px;">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small">List Price:</span>
+                                <span class="text-decoration-line-through text-muted">@Model.Product.ListPrice.ToString("c")</span>
+                            </div>
+                            
+                            @if (ViewBag.IsCompanyUser == true)
+                            {
+                                <!-- Bulk Pricing Table - Only for Company Users -->
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-borderless mb-0">
+                                        <thead>
+                                            <tr style="background: rgba(255, 49, 49, 0.05); border-radius: 8px;">
+                                                <th class="text-muted fw-semibold small">Quantity</th>
+                                                <th class="text-center text-muted fw-semibold small">1-50</th>
+                                                <th class="text-center text-muted fw-semibold small">51-100</th>
+                                                <th class="text-center text-muted fw-semibold small">100+</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-bold small" style="color: #ff3131;">Price</td>
+                                                <td class="text-center fw-bold small" style="color: #ff3131;">@Model.Product.Price.ToString("c")</td>
+                                                <td class="text-center fw-bold small" style="color: #ff3131;">@Model.Product.Price50.ToString("c")</td>
+                                                <td class="text-center fw-bold small" style="color: #ff3131;">@Model.Product.Price100.ToString("c")</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="alert alert-info border-0 mt-2 mb-0 py-2" style="background: rgba(59, 130, 246, 0.1); border-radius: 8px;">
+                                    <small><i class="bi bi-info-circle me-2"></i>Bulk pricing available for your company account</small>
+                                </div>
+                            }
+                            else
+                            {
+                                <!-- Simple Price Display - For Regular Users -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0" style="color: #ff3131;">Our Price:</h5>
+                                    <h4 class="mb-0 fw-bold" style="color: #ff3131;">@Model.Product.DiscountPrice.ToString("c")</h4>
+                                </div>
+                                @if(Model.Product.ListPrice > Model.Product.DiscountPrice)
+                                {
+                                    <div class="mt-1 text-end">
+                                        <small class="text-success"><i class="bi bi-tag-fill me-1"></i>You save @((Model.Product.ListPrice - Model.Product.DiscountPrice).ToString("c"))</small>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <h6 class="fw-bold mb-2">Description</h6>
+                        <div class="text-muted small" style="max-height: 120px; overflow-y: auto;">@Html.Raw(Model.Product.Description)</div>
+                    </div>
+
+                    <!-- Quantity & Add to Cart -->
+                    <div class="row g-2 align-items-end">
+                        <div class="col-4">
+                            <label class="form-label fw-semibold small">Quantity</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text" style="background: linear-gradient(135deg, rgba(255, 49, 49, 0.9) 0%, rgba(230, 32, 32, 0.85) 100%); color: white; border: none;">
+                                    <i class="bi bi-hash"></i>
+                                </span>
+                                <input asp-for="Count" type="number" value="1" min="1" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-8">
+                            <button type="submit" class="btn w-100 text-white" style="background: linear-gradient(135deg, rgba(255, 49, 49, 0.9) 0%, rgba(230, 32, 32, 0.85) 100%); border: none; border-radius: 8px; box-shadow: 0 4px 15px rgba(255, 49, 49, 0.3);">
+                                <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Features -->
+                    <div class="row g-2 mt-2">
+                        <div class="col-6">
+                            <div class="d-flex align-items-center p-2" style="background: rgba(16, 185, 129, 0.05); border-radius: 8px;">
+                                <i class="bi bi-truck" style="font-size: 1.2rem; color: #10b981;"></i>
+                                <div class="ms-2">
+                                    <small class="d-block fw-semibold">Free Shipping</small>
+                                    <small class="text-muted" style="font-size: 0.7rem;">On orders over 500 tk</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center p-2" style="background: rgba(255, 49, 49, 0.05); border-radius: 8px;">
+                                <i class="bi bi-arrow-clockwise" style="font-size: 1.2rem; color: #ff3131;"></i>
+                                <div class="ms-2">
+                                    <small class="d-block fw-semibold">Easy Returns</small>
+                                    <small class="text-muted" style="font-size: 0.7rem;">30-day guarantee</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
