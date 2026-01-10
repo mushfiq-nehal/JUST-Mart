@@ -1,71 +1,233 @@
 ﻿@page
 @model LoginModel
 
-<div class="row justify-content-center mt-5">
-    <div class="col-md-5">
-        <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden; animation: fadeInUp 0.6s ease;">
-            <div class="card-header text-white text-center py-4" style="background: linear-gradient(135deg, rgba(255, 49, 49, 0.9) 0%, rgba(230, 32, 32, 0.85) 100%);">
-                <img src="~/logo/justmart-logo.png" alt="JUST Mart Logo" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) invert(1);" class="mb-3" />
-                <h2 class="mt-2 mb-0 fw-bold">Welcome Back</h2>
-                <p class="mb-0 opacity-90">Sign in to your account</p>
-                
-                <!-- Demo Credentials Button -->
-                <button type="button" class="btn btn-sm btn-light mt-3" data-bs-toggle="modal" data-bs-target="#demoCredentialsModal" style="border-radius: 20px; font-size: 12px;">
-                    <i class="bi bi-info-circle me-1"></i> Demo Credentials
-                </button>
+<style>
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        padding: 2rem 0;
+    }
+    
+    .auth-card {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        background: white;
+        animation: fadeInUp 0.6s ease;
+    }
+    
+    .auth-image-section {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, rgba(255, 49, 49, 0.95) 0%, rgba(230, 32, 32, 0.9) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 2rem;
+        min-height: 600px;
+    }
+    
+    .auth-image-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('/images/login page image.png');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.35;
+    }
+    
+    .auth-image-content {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        color: white;
+    }
+    
+    .auth-form-section {
+        padding: 3rem 2.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .auth-logo {
+        height: 120px;
+        margin-bottom: 2rem;
+        filter: brightness(0) invert(1);
+    }
+    
+    .auth-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        color: white;
+        letter-spacing: -0.5px;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    
+    .auth-subtitle {
+        font-size: 1.15rem;
+        opacity: 0.95;
+        margin-bottom: 2rem;
+        font-weight: 400;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    
+    .form-control-custom {
+        border-radius: 12px;
+        border: 1.5px solid #e2e8f0;
+        padding: 0.875rem 1rem;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background: #fafbfc;
+    }
+    
+    .form-control-custom:focus {
+        border-color: #ff3131;
+        box-shadow: 0 0 0 3px rgba(255, 49, 49, 0.08);
+        background: white;
+    }
+    
+    .btn-auth-primary {
+        background: linear-gradient(135deg, rgba(255, 49, 49, 0.9) 0%, rgba(230, 32, 32, 0.85) 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 1rem;
+        font-weight: 600;
+        font-size: 1rem;
+        color: white;
+        box-shadow: 0 4px 20px rgba(255, 49, 49, 0.25);
+        transition: all 0.3s ease;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        letter-spacing: 0.3px;
+    }
+    
+    .btn-auth-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 49, 49, 0.4);
+        background: linear-gradient(135deg, rgba(255, 49, 49, 1) 0%, rgba(230, 32, 32, 0.95) 100%);
+    }
+    
+    .demo-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+    }
+    
+    .demo-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: white;
+        color: white;
+    }
+    
+    @@media (max-width: 991px) {
+        .auth-image-section {
+            min-height: 300px;
+        }
+        
+        .auth-title {
+            font-size: 2rem;
+        }
+    }
+    
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="auth-container">
+    <div class="container">
+        <div class="row auth-card">
+            <!-- Left Side - Image Section -->
+            <div class="col-lg-6 p-0">
+                <div class="auth-image-section">
+                    <div class="auth-image-content">
+                        <img src="~/logo/justmart-logo.png" alt="JUST Mart Logo" class="auth-logo" />
+                        <h1 class="auth-title">Welcome Back!</h1>
+                        <p class="auth-subtitle">Sign in to continue your shopping journey</p>
+                        <button type="button" class="btn demo-btn" data-bs-toggle="modal" data-bs-target="#demoCredentialsModal">
+                            <i class="bi bi-info-circle me-2"></i>View Demo Credentials
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="card-body p-5">
-                <section>
+            
+            <!-- Right Side - Form Section -->
+            <div class="col-lg-6 p-0">
+                <div class="auth-form-section">
+                    <div class="mb-4">
+                        <h2 class="fw-bold mb-2" style="color: #1a202c; font-size: 1.875rem; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; letter-spacing: -0.5px;">Sign In</h2>
+                        <p class="text-muted" style="font-size: 0.95rem; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;">Enter your credentials to access your account</p>
+                    </div>
+                    
                     <form id="account" method="post">
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
                         
-                        <div class="mb-4">
-                            <label asp-for="Input.Email" class="form-label fw-semibold">Email Address</label>
+                        <div class="mb-3">
+                            <label asp-for="Input.Email" class="form-label fw-semibold" style="color: #4a5568;">Email Address</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
-                                <input asp-for="Input.Email" class="form-control form-control-lg" autocomplete="username" aria-required="true" placeholder="your@email.com" />
+                                <span class="input-group-text bg-light border-end-0" style="border-radius: 10px 0 0 10px;">
+                                    <i class="bi bi-envelope text-muted"></i>
+                                </span>
+                                <input asp-for="Input.Email" class="form-control form-control-custom border-start-0 ps-0" autocomplete="username" aria-required="true" placeholder="your@email.com" />
                             </div>
                             <span asp-validation-for="Input.Email" class="text-danger small"></span>
                         </div>
                         
-                        <div class="mb-4">
-                            <label asp-for="Input.Password" class="form-label fw-semibold">Password</label>
+                        <div class="mb-3">
+                            <label asp-for="Input.Password" class="form-label fw-semibold" style="color: #4a5568;">Password</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
-                                <input asp-for="Input.Password" class="form-control form-control-lg" autocomplete="current-password" aria-required="true" placeholder="Enter your password" />
+                                <span class="input-group-text bg-light border-end-0" style="border-radius: 10px 0 0 10px;">
+                                    <i class="bi bi-lock text-muted"></i>
+                                </span>
+                                <input asp-for="Input.Password" class="form-control form-control-custom border-start-0 ps-0" autocomplete="current-password" aria-required="true" placeholder="Enter your password" />
                             </div>
                             <span asp-validation-for="Input.Password" class="text-danger small"></span>
                         </div>
                         
-                        <div class="form-check mb-4">
-                            <input class="form-check-input" asp-for="Input.RememberMe" />
-                            <label class="form-check-label" asp-for="Input.RememberMe">
-                                Remember me
-                            </label>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" asp-for="Input.RememberMe" style="border-radius: 5px;" />
+                                <label class="form-check-label" asp-for="Input.RememberMe" style="color: #4a5568;">
+                                    Remember me
+                                </label>
+                            </div>
+                            <a id="forgot-password" asp-page="./ForgotPassword" class="text-decoration-none small" style="color: #ff3131; font-weight: 600;">
+                                Forgot Password?
+                            </a>
                         </div>
                         
                         <div class="d-grid mb-4">
-                            <button id="login-submit" type="submit" class="btn btn-lg text-white" style="background: linear-gradient(135deg, rgba(255, 49, 49, 0.9) 0%, rgba(230, 32, 32, 0.85) 100%); border-radius: 12px; box-shadow: 0 4px 15px rgba(255, 49, 49, 0.3); transition: all 0.3s ease;">
+                            <button id="login-submit" type="submit" class="btn btn-auth-primary btn-lg">
                                 <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
                             </button>
                         </div>
                         
                         <div class="text-center">
-                            <a id="forgot-password" asp-page="./ForgotPassword" class="text-decoration-none" style="color: #ff3131; transition: color 0.3s ease;">
-                                <i class="bi bi-question-circle me-1"></i>Forgot your password?
-                            </a>
-                        </div>
-                        
-                        <hr class="my-4">
-                        
-                        <div class="text-center">
-                            <p class="mb-0">Don't have an account?</p>
-                            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="fw-bold text-decoration-none" style="color: #ff3131;">
-                                Create a new account <i class="bi bi-arrow-right"></i>
-                            </a>
+                            <p class="text-muted mb-0">Don't have an account? 
+                                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="text-decoration-none fw-bold" style="color: #ff3131;">
+                                    Sign Up
+                                </a>
+                            </p>
                         </div>
                     </form>
-                </section>
+                </div>
             </div>
         </div>
     </div>

@@ -1,127 +1,346 @@
 ﻿@page
 @model RegisterModel
 
-<div class="row justify-content-center mt-5 mb-5">
-    <div class="col-lg-8">
-        <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden; animation: fadeInUp 0.6s ease;">
-            <div class="card-header text-white text-center py-4" style="background: linear-gradient(135deg, rgba(255, 49, 49, 0.9) 0%, rgba(230, 32, 32, 0.85) 100%);">
-                <img src="~/logo/justmart-logo.png" alt="JUST Mart Logo" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) invert(1);" class="mb-3" />
-                @if (User.IsInRole(SD.Role_Admin)) {
-                    <h2 class="mt-2 mb-0">Admin Portal - Register User</h2>
-                }
-                else {
-                    <h2 class="mt-2 mb-0">Create Account</h2>
-                    <p class="mb-0">Join JUST Mart today!</p>
-                }
+<style>
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        padding: 2rem 0;
+    }
+    
+    .auth-card {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        background: white;
+        animation: fadeInUp 0.6s ease;
+    }
+    
+    .auth-image-section {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, rgba(255, 49, 49, 0.95) 0%, rgba(230, 32, 32, 0.9) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 2rem;
+        min-height: 700px;
+    }
+    
+    .auth-image-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('/images/login page image.png');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.35;
+    }
+    
+    .auth-image-content {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        color: white;
+    }
+    
+    .auth-form-section {
+        padding: 2.5rem 2.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        max-height: 700px;
+        overflow-y: auto;
+    }
+    
+    .auth-form-section::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .auth-form-section::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    .auth-form-section::-webkit-scrollbar-thumb {
+        background: #cbd5e0;
+        border-radius: 4px;
+    }
+    
+    .auth-form-section::-webkit-scrollbar-thumb:hover {
+        background: #a0aec0;
+    }
+    
+    .auth-logo {
+        height: 120px;
+        margin-bottom: 2rem;
+        filter: brightness(0) invert(1);
+    }
+    
+    .auth-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        color: white;
+        letter-spacing: -0.5px;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    
+    .auth-subtitle {
+        font-size: 1.15rem;
+        opacity: 0.95;
+        margin-bottom: 2rem;
+        font-weight: 400;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    
+    .form-control-custom {
+        border-radius: 12px;
+        border: 1.5px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background: #fafbfc;
+    }
+    
+    .form-control-custom:focus {
+        border-color: #ff3131;
+        box-shadow: 0 0 0 3px rgba(255, 49, 49, 0.08);
+        background: white;
+    }
+    
+    .btn-auth-primary {
+        background: linear-gradient(135deg, rgba(255, 49, 49, 0.9) 0%, rgba(230, 32, 32, 0.85) 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 0.95rem;
+        font-weight: 600;
+        font-size: 1rem;
+        color: white;
+        box-shadow: 0 4px 20px rgba(255, 49, 49, 0.25);
+        transition: all 0.3s ease;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        letter-spacing: 0.3px;
+    }
+    
+    .btn-auth-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 49, 49, 0.4);
+        background: linear-gradient(135deg, rgba(255, 49, 49, 1) 0%, rgba(230, 32, 32, 0.95) 100%);
+    }
+    
+    .section-divider {
+        border-top: 2px solid #e9ecef;
+        margin: 1.5rem 0;
+        position: relative;
+    }
+    
+    .section-title {
+        background: white;
+        padding: 0 1rem;
+        position: relative;
+        top: -0.75rem;
+        display: inline-block;
+        color: #ff3131;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    
+    @@media (max-width: 991px) {
+        .auth-image-section {
+            min-height: 300px;
+        }
+        
+        .auth-title {
+            font-size: 2rem;
+        }
+        
+        .auth-form-section {
+            max-height: none;
+        }
+    }
+    
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="auth-container">
+    <div class="container-fluid px-lg-5">
+        <div class="row auth-card">
+            <!-- Left Side - Image Section -->
+            <div class="col-lg-5 p-0">
+                <div class="auth-image-section">
+                    <div class="auth-image-content">
+                        <img src="~/logo/justmart-logo.png" alt="JUST Mart Logo" class="auth-logo" />
+                        @if (User.IsInRole(SD.Role_Admin)) {
+                            <h1 class="auth-title">Admin Portal</h1>
+                            <p class="auth-subtitle">Register new users to the system</p>
+                        }
+                        else {
+                            <h1 class="auth-title">Join Us Today!</h1>
+                            <p class="auth-subtitle">Create an account and start your shopping journey</p>
+                        }
+                        <div class="mt-4">
+                            <p class="mb-2" style="font-size: 0.95rem; opacity: 0.9;"><i class="bi bi-check-circle-fill me-2"></i>Exclusive deals & offers</p>
+                            <p class="mb-2" style="font-size: 0.95rem; opacity: 0.9;"><i class="bi bi-check-circle-fill me-2"></i>Fast & secure checkout</p>
+                            <p class="mb-0" style="font-size: 0.95rem; opacity: 0.9;"><i class="bi bi-check-circle-fill me-2"></i>Track your orders easily</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body p-5">
-                <form id="registerForm" class="row g-3" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            
+            <!-- Right Side - Form Section -->
+            <div class="col-lg-7 p-0">
+                <div class="auth-form-section">
+                    <div class="mb-3">
+                        @if (User.IsInRole(SD.Role_Admin)) {
+                            <h2 class="fw-bold mb-2" style="color: #1a202c; font-size: 1.75rem; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; letter-spacing: -0.5px;">Register New User</h2>
+                            <p class="text-muted" style="font-size: 0.9rem; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; line-height: 1.4;">Create a new user account</p>
+                        }
+                        else {
+                            <h2 class="fw-bold mb-2" style="color: #1a202c; font-size: 1.75rem; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; letter-spacing: -0.5px;">Create Account</h2>
+                            <p class="text-muted" style="font-size: 0.9rem; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; line-height: 1.4;">Fill in your details to get started</p>
+                        }
+                    </div>
                     
-                    <div class="col-md-12">
-                        <label asp-for="Input.Email" class="form-label fw-semibold">Email Address</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
-                            <input asp-for="Input.Email" class="form-control form-control-lg" autocomplete="username" aria-required="true" placeholder="your@email.com" />
+                    <form id="registerForm" class="row g-3" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
+                        
+                        <div class="col-12">
+                            <label asp-for="Input.Email" class="form-label fw-semibold" style="color: #4a5568; font-size: 0.9rem;">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0" style="border-radius: 10px 0 0 10px;">
+                                    <i class="bi bi-envelope text-muted"></i>
+                                </span>
+                                <input asp-for="Input.Email" class="form-control form-control-custom border-start-0 ps-0" autocomplete="username" aria-required="true" placeholder="your@email.com" />
+                            </div>
+                            <span asp-validation-for="Input.Email" class="text-danger small"></span>
                         </div>
-                        <span asp-validation-for="Input.Email" class="text-danger small"></span>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label asp-for="Input.Name" class="form-label fw-semibold">Full Name</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
-                            <input asp-for="Input.Name" class="form-control form-control-lg" placeholder="John Doe" />
-                        </div>
-                        <span asp-validation-for="Input.Name" class="text-danger small"></span>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label asp-for="Input.PhoneNumber" class="form-label fw-semibold">Phone Number</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-telephone"></i></span>
-                            <input asp-for="Input.PhoneNumber" class="form-control form-control-lg" placeholder="+880 1234567890" />
-                        </div>
-                        <span asp-validation-for="Input.PhoneNumber" class="text-danger small"></span>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label asp-for="Input.Password" class="form-label fw-semibold">Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
-                            <input asp-for="Input.Password" class="form-control form-control-lg" autocomplete="new-password" aria-required="true" placeholder="Create a strong password" />
-                        </div>
-                        <span asp-validation-for="Input.Password" class="text-danger small"></span>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label asp-for="Input.ConfirmPassword" class="form-label fw-semibold">Confirm Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-lock-fill"></i></span>
-                            <input asp-for="Input.ConfirmPassword" class="form-control form-control-lg" autocomplete="new-password" aria-required="true" placeholder="Re-enter password" />
-                        </div>
-                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
-                    </div>
-                    
-                    <hr class="my-3">
-                    <h5 class="mb-3" style="color: #ff3131;"><i class="bi bi-geo-alt me-2"></i>Address Information</h5>
-                    
-                    <div class="col-md-6">
-                        <label asp-for="Input.StreetAddress" class="form-label fw-semibold">Street Address</label>
-                        <input asp-for="Input.StreetAddress" class="form-control form-control-lg" placeholder="123 Main Street" />
-                        <span asp-validation-for="Input.StreetAddress" class="text-danger small"></span>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label asp-for="Input.City" class="form-label fw-semibold">City</label>
-                        <input asp-for="Input.City" class="form-control form-control-lg" placeholder="Dhaka" />
-                        <span asp-validation-for="Input.City" class="text-danger small"></span>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label asp-for="Input.State" class="form-label fw-semibold">State/Division</label>
-                        <input asp-for="Input.State" class="form-control form-control-lg" placeholder="Dhaka Division" />
-                        <span asp-validation-for="Input.State" class="text-danger small"></span>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label asp-for="Input.PostalCode" class="form-label fw-semibold">Postal Code</label>
-                        <input asp-for="Input.PostalCode" class="form-control form-control-lg" placeholder="1000" />
-                        <span asp-validation-for="Input.PostalCode" class="text-danger small"></span>
-                    </div>
-                    
-                    @if (User.IsInRole(SD.Role_Admin))
-                    {
-                        <hr class="my-3">
+                        
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">User Role</label>
-                            <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-select form-select-lg">
-                                <option disabled selected>-Select Role-</option>
-                            </select>
+                            <label asp-for="Input.Name" class="form-label fw-semibold" style="color: #4a5568; font-size: 0.9rem;">Full Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0" style="border-radius: 10px 0 0 10px;">
+                                    <i class="bi bi-person text-muted"></i>
+                                </span>
+                                <input asp-for="Input.Name" class="form-control form-control-custom border-start-0 ps-0" placeholder="John Doe" />
+                            </div>
+                            <span asp-validation-for="Input.Name" class="text-danger small"></span>
                         </div>
+                        
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Company</label>
-                            <select asp-for="Input.CompanyId" style="display:none;" asp-items="@Model.Input.CompanyList" class="form-select form-select-lg">
-                                <option disabled selected>-Select Company-</option>
-                            </select>
+                            <label asp-for="Input.PhoneNumber" class="form-label fw-semibold" style="color: #4a5568; font-size: 0.9rem;">Phone Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0" style="border-radius: 10px 0 0 10px;">
+                                    <i class="bi bi-telephone text-muted"></i>
+                                </span>
+                                <input asp-for="Input.PhoneNumber" class="form-control form-control-custom border-start-0 ps-0" placeholder="+880 1234567890" />
+                            </div>
+                            <span asp-validation-for="Input.PhoneNumber" class="text-danger small"></span>
                         </div>
-                    }
-                    
-                    <div class="col-12 mt-4">
-                        <div class="d-grid">
-                            <button id="registerSubmit" type="submit" class="btn btn-lg text-white" style="background: linear-gradient(135deg, rgba(255, 49, 49, 0.9) 0%, rgba(230, 32, 32, 0.85) 100%); border-radius: 12px; box-shadow: 0 4px 15px rgba(255, 49, 49, 0.3); transition: all 0.3s ease;">
-                                <i class="bi bi-person-check me-2"></i>Create Account
-                            </button>
+                        
+                        <div class="col-md-6">
+                            <label asp-for="Input.Password" class="form-label fw-semibold" style="color: #4a5568; font-size: 0.9rem;">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0" style="border-radius: 10px 0 0 10px;">
+                                    <i class="bi bi-lock text-muted"></i>
+                                </span>
+                                <input asp-for="Input.Password" class="form-control form-control-custom border-start-0 ps-0" autocomplete="new-password" aria-required="true" placeholder="Create a strong password" />
+                            </div>
+                            <span asp-validation-for="Input.Password" class="text-danger small"></span>
                         </div>
-                    </div>
-                    
-                    <div class="col-12 text-center mt-3">
-                        <p class="mb-0">Already have an account?</p>
-                        <a asp-page="./Login" class="fw-bold text-decoration-none" style="color: #ff3131;">
-                            Sign in here <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
-                </form>
+                        
+                        <div class="col-md-6">
+                            <label asp-for="Input.ConfirmPassword" class="form-label fw-semibold" style="color: #4a5568; font-size: 0.9rem;">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0" style="border-radius: 10px 0 0 10px;">
+                                    <i class="bi bi-lock-fill text-muted"></i>
+                                </span>
+                                <input asp-for="Input.ConfirmPassword" class="form-control form-control-custom border-start-0 ps-0" autocomplete="new-password" aria-required="true" placeholder="Re-enter password" />
+                            </div>
+                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="section-divider">
+                                <span class="section-title"><i class="bi bi-geo-alt me-1"></i>Address Information</span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label asp-for="Input.StreetAddress" class="form-label fw-semibold" style="color: #4a5568; font-size: 0.9rem;">Street Address</label>
+                            <input asp-for="Input.StreetAddress" class="form-control form-control-custom" placeholder="123 Main Street" />
+                            <span asp-validation-for="Input.StreetAddress" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label asp-for="Input.City" class="form-label fw-semibold" style="color: #4a5568; font-size: 0.9rem;">City</label>
+                            <input asp-for="Input.City" class="form-control form-control-custom" placeholder="Dhaka" />
+                            <span asp-validation-for="Input.City" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label asp-for="Input.State" class="form-label fw-semibold" style="color: #4a5568; font-size: 0.9rem;">State/Division</label>
+                            <input asp-for="Input.State" class="form-control form-control-custom" placeholder="Dhaka Division" />
+                            <span asp-validation-for="Input.State" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label asp-for="Input.PostalCode" class="form-label fw-semibold" style="color: #4a5568; font-size: 0.9rem;">Postal Code</label>
+                            <input asp-for="Input.PostalCode" class="form-control form-control-custom" placeholder="1000" />
+                            <span asp-validation-for="Input.PostalCode" class="text-danger small"></span>
+                        </div>
+                        
+                        @if (User.IsInRole(SD.Role_Admin))
+                        {
+                            <div class="col-12">
+                                <div class="section-divider">
+                                    <span class="section-title"><i class="bi bi-shield-check me-1"></i>Role & Company</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold" style="color: #4a5568; font-size: 0.9rem;">User Role</label>
+                                <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-select form-control-custom">
+                                    <option disabled selected>-Select Role-</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold" style="color: #4a5568; font-size: 0.9rem;">Company</label>
+                                <select asp-for="Input.CompanyId" style="display:none;" asp-items="@Model.Input.CompanyList" class="form-select form-control-custom">
+                                    <option disabled selected>-Select Company-</option>
+                                </select>
+                            </div>
+                        }
+                        
+                        <div class="col-12 mt-3">
+                            <div class="d-grid">
+                                <button id="registerSubmit" type="submit" class="btn btn-auth-primary btn-lg">
+                                    <i class="bi bi-person-check me-2"></i>Create Account
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 text-center mt-3">
+                            <p class="text-muted mb-0">Already have an account? 
+                                <a asp-page="./Login" class="text-decoration-none fw-bold" style="color: #ff3131;">
+                                    Sign In
+                                </a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

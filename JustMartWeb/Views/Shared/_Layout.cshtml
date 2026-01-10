@@ -18,96 +18,67 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 2px 20px rgba(255, 49, 49, 0.1); border-bottom: 1px solid rgba(255, 49, 49, 0.1);">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top modern-nav">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center fw-bold fs-4" asp-area="" asp-controller="Home" asp-action="Index" style="transition: transform 0.3s ease;">
-                    <img src="~/logo/justmart-logo.png" alt="JUST Mart Logo" style="height: 55px; width: auto; object-fit: contain;" class="me-2" />
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/logo/justmart-logo.png" alt="JUST Mart" class="brand-logo" />
                 </a>
-                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
-                    <ul class="navbar-nav">
+                <div class="navbar-collapse collapse">
+                    <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link px-3 py-2 mx-1 fw-semibold position-relative nav-link-modern" asp-area="Customer" asp-controller="Home" asp-action="Index">
-                                <i class="bi bi-house-door me-1"></i>Home
-                            </a>
+                            <a class="nav-link" asp-area="Customer" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        
                         <li class="nav-item">
-                            <a class="nav-link px-3 py-2 mx-1 fw-semibold position-relative nav-link-modern" asp-area="Admin" asp-controller="Order" asp-action="Index">
-                                <i class="bi bi-box-seam me-1"></i>Orders
-                            </a>
+                            <a class="nav-link" asp-area="Admin" asp-controller="Order" asp-action="Index">Orders</a>
                         </li>
                         @if (User.IsInRole(SD.Role_Admin))
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle px-3 py-2 mx-1 fw-semibold position-relative nav-link-modern" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-gear me-1"></i>Manage
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Manage
                                 </a>
-                                <ul class="dropdown-menu shadow-lg border-0 mt-2" style="border-radius: 12px; overflow: hidden; animation: dropdownSlide 0.3s ease;">
-                                    <li class="nav-item">
-                                        <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Admin" asp-controller="Category" asp-action="Index">
-                                            <i class="bi bi-tags me-2" style="color: #ff3131;"></i>Categories
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Admin" asp-controller="Product" asp-action="Index">
-                                            <i class="bi bi-box me-2" style="color: #ff3131;"></i>Products
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Admin" asp-controller="Company" asp-action="Index">
-                                            <i class="bi bi-building me-2" style="color: #ff3131;"></i>Companies
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Admin" asp-controller="Coupon" asp-action="Index">
-                                            <i class="bi bi-ticket-perforated me-2" style="color: #ff3131;"></i>Coupons
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider my-1"></li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Identity" asp-page="/Account/Register">
-                                            <i class="bi bi-person-plus me-2" style="color: #ff3131;"></i>Create User
-                                        </a>
-                                    </li>
-                                     <li class="nav-item">
-                                        <a class="dropdown-item py-2 px-4 dropdown-item-modern" asp-area="Admin" asp-controller="User" asp-action="Index">
-                                            <i class="bi bi-people me-2" style="color: #ff3131;"></i>Manage Users
-                                        </a>
-                                    </li>
-
+                                <ul class="dropdown-menu modern-dropdown">
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index">Categories</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Product" asp-action="Index">Products</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Company" asp-action="Index">Companies</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Coupon" asp-action="Index">Coupons</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-area="Identity" asp-page="/Account/Register">Create User</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="User" asp-action="Index">Manage Users</a></li>
                                 </ul>
                             </li>
                         }
                     </ul>
                     
+                    <!-- Desktop Search Bar -->
+                    <div class="d-none d-lg-flex flex-grow-1 mx-4 search-container">
+                        <div class="input-group modern-search">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search for products..." autocomplete="off">
+                            <button class="btn search-btn" type="button" id="searchBtn">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
                     <!-- Mobile Search Bar -->
-                    <div class="d-lg-none mb-3">
-                        <div class="input-group">
-                            <input type="text" id="mobileSearchInput" class="form-control" placeholder="Search products..." autocomplete="off" style="border-radius: 12px 0 0 12px; border: 2px solid rgba(255, 49, 49, 0.2); padding: 0.75rem 1rem;">
-                            <button class="btn" type="button" id="mobileSearchBtn" style="border-radius: 0 12px 12px 0; background: linear-gradient(135deg, rgba(255, 49, 49, 0.95) 0%, rgba(230, 32, 32, 0.9) 100%); color: white; border: none; padding: 0 1.25rem;">
+                    <div class="d-lg-none mt-3 mb-2">
+                        <div class="input-group modern-search">
+                            <input type="text" id="mobileSearchInput" class="form-control" placeholder="Search products..." autocomplete="off">
+                            <button class="btn search-btn" type="button" id="mobileSearchBtn">
                                 <i class="bi bi-search"></i>
                             </button>
                         </div>
                     </div>
                     
-                    <!-- Search Bar -->
-                    <div class="mx-auto d-none d-lg-block" style="max-width: 400px; width: 100%;">
-                        <div class="input-group position-relative">
-                            <input type="text" id="searchInput" class="form-control search-input" placeholder="Search products..." autocomplete="off" style="border-radius: 25px 0 0 25px; border: 2px solid #e9ecef; padding: 0.6rem 1rem;">
-                            <button class="btn btn-search" type="button" id="searchBtn" style="border-radius: 0 25px 25px 0; background: linear-gradient(135deg, rgba(255, 49, 49, 0.9) 0%, rgba(230, 32, 32, 0.85) 100%); color: white; border: none; padding: 0 1.5rem;">
-                                <i class="bi bi-search"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <ul class="navbar-nav ms-auto align-items-center">
-                        <li class="nav-item me-3">
-                            <a class="nav-link px-3 py-2 position-relative cart-link" asp-area="Customer" asp-controller="Cart" asp-action="Index" style="background: linear-gradient(135deg, rgba(255, 49, 49, 0.9) 0%, rgba(230, 32, 32, 0.85) 100%); color: white; border-radius: 25px; font-weight: 600; transition: all 0.3s ease;">
-                                <i class="bi bi-cart3 me-1" style="font-size: 1.1rem;"></i>Cart
+                    <ul class="navbar-nav align-items-lg-center nav-right">
+                        <li class="nav-item">
+                            <a class="nav-link cart-link" asp-area="Customer" asp-controller="Cart" asp-action="Index">
+                                <i class="bi bi-cart3"></i>
+                                <span class="d-none d-xl-inline ms-1">Cart</span>
                                 @await Component.InvokeAsync("ShoppingCart")
                             </a>
                         </li>
