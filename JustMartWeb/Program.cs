@@ -56,8 +56,8 @@ builder.Services.AddScoped<IEmailSender, EmailSender>();
 // Register Azure Blob Storage Service
 builder.Services.AddScoped<IBlobStorageService?>(sp =>
 {
-    var connectionString = builder.Configuration.GetSection("AzureBlobStorage:ConnectionString").Value;
-    if (string.IsNullOrEmpty(connectionString) || connectionString == "YOUR_AZURE_STORAGE_CONNECTION_STRING_HERE")
+    var connectionString = builder.Configuration.GetSection("BlobStorage:Key").Value;
+    if (string.IsNullOrEmpty(connectionString))
     {
         return null; // Return null if not configured, controller will use local storage
     }
@@ -80,7 +80,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
-// SeedDatabase(); // Commented out - already seeded
+// SeedDatabase(); // Already seeded - comment out after first run
 app.MapRazorPages();
 app.MapControllerRoute(
     name: "default",

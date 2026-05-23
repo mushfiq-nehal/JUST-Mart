@@ -368,3 +368,10 @@ appsettings.Development.json
 appsettings.Production.json
 **/appsettings.*.json
 !**/appsettings.json
+
+# Deployment artifacts - DO NOT COMMIT
+publish_output/
+deploy_to_azure.zip
+*.zip
+**/temp/
+**/publish_old/
